@@ -1,5 +1,5 @@
-const ApiError = require('./ApiError');
-const logger = require('./logger');
+const ApiError = require('../utils/ApiError');
+const logger = require('../utils/logger');
 
 const errorHandler = (err, req, res, next) => {
   let error = err;

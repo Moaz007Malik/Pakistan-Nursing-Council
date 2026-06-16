@@ -63,10 +63,25 @@ npm run dev
 ### Docker (Full Stack)
 
 ```bash
-docker-compose up -d
+# Ensure .env exists (copy from .env.example)
+cp .env.example .env
+
+# Build and start all services
+docker compose up -d --build
+
+# Seed the database (first time only — run against Docker MongoDB)
+docker compose exec backend node src/seeds/index.js
 ```
 
-Access via http://localhost (Nginx reverse proxy)
+| URL | Service |
+|-----|---------|
+| http://localhost | Nginx (frontend + API proxy) |
+| http://localhost:3000 | Frontend only |
+| http://localhost:5000 | Backend API |
+| http://localhost:5000/api/docs | Swagger |
+| http://localhost:9001 | MinIO console (`minioadmin` / `minioadmin`) |
+
+**Troubleshooting:** If backend keeps restarting, check logs with `docker compose logs backend`. Ensure MongoDB is healthy before the API starts (`docker compose ps`).
 
 ### Vercel Deployment
 
