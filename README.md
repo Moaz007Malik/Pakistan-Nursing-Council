@@ -195,4 +195,4 @@ Student and faculty registration forms in the frontend are modeled after these d
 ## License
 
 Proprietary — Pakistan Nursing & Midwifery Council
-# Pakistan-Nu[Drsing-Council
+# Pakistan-Nursing-Council
