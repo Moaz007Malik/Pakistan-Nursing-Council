@@ -276,7 +276,7 @@ const PAYMENT_TYPES = [
   'institution_renewal',
 ];
 
-const PAYMENT_GATEWAYS = ['stripe', 'easypaisa', 'jazzcash'];
+const PAYMENT_GATEWAYS = ['stripe', 'easypaisa', 'jazzcash', 'bypass'];
 
 const BIOMETRIC_VENDORS = ['zkteco', 'essl', 'suprema'];
 

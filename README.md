@@ -8,7 +8,7 @@ Enterprise-grade Nursing & Midwifery Council Management System built with the ME
 |-------|-------------|
 | Frontend | React, Redux Toolkit, Material UI, React Query, React Hook Form, Socket.io, Chart.js, React Router |
 | Backend | Node.js, Express, MongoDB, Mongoose, Socket.io, JWT, RBAC |
-| Storage | AWS S3 / MinIO |
+| Storage | Local disk, MinIO (self-hosted), S3-compatible (R2/B2), AWS S3 |
 | Deployment | Docker, Nginx, Vercel, GitHub Actions CI/CD |
 
 ## Modules
@@ -85,12 +85,19 @@ The repo includes `vercel.json` for full-stack deploy (React frontend + Express 
 | `FRONTEND_URL` | Yes | `https://your-project.vercel.app` or custom domain |
 | `NODE_ENV` | Yes | `production` |
 | `VITE_API_URL` | Yes | `/api/v1` (same deployment) |
-| `STORAGE_PROVIDER` | Yes | `s3` on Vercel |
-| `AWS_ACCESS_KEY_ID` | Yes* | *Required if using S3 |
-| `AWS_SECRET_ACCESS_KEY` | Yes* | |
-| `AWS_REGION` | Yes* | e.g. `us-east-1` |
-| `AWS_S3_BUCKET` | Yes* | Your S3 bucket name |
+| `PAYMENTS_ENABLED` | Yes | `false` = auto-pass payments; `true` = live gateways |
+| `STORAGE_PROVIDER` | Yes | `s3_compatible` (R2/B2/MinIO) — **AWS not required** |
+| `S3_ENDPOINT` | Yes* | S3-compatible endpoint URL |
+| `S3_ACCESS_KEY_ID` | Yes* | |
+| `S3_SECRET_ACCESS_KEY` | Yes* | |
+| `S3_BUCKET` | Yes* | |
 | `VITE_SOCKET_URL` | No | Leave empty on Vercel (WebSockets need a separate host) |
+
+\*Required for file uploads unless you skip document features.
+
+**Storage without AWS:** Use MinIO locally (docker-compose) or any S3-compatible cloud (Cloudflare R2, Backblaze B2, hosted MinIO) via `STORAGE_PROVIDER=s3_compatible`. See `.env.example` for details.
+
+**Payments:** Set `PAYMENTS_ENABLED=false` to auto-complete all payments without charging (dev/staging). Set `true` and configure Stripe/Easypaisa/JazzCash for production.
 
 **3. Deploy.** Vercel runs:
 - `frontend` build → static site
@@ -104,7 +111,8 @@ MONGODB_URI="your-atlas-uri" npm run seed --prefix backend
 
 **Notes:**
 - Use **MongoDB Atlas** — local MongoDB does not work on Vercel.
-- Use **AWS S3** for file storage — MinIO localhost is not available.
+- **File storage** does not require AWS. Use Cloudflare R2, Backblaze B2, or self-hosted MinIO with `STORAGE_PROVIDER=s3_compatible`.
+- **MinIO in docker-compose** is for local development — it's a free self-hosted S3-compatible server so you can test document uploads without any cloud account.
 - **Socket.io / live monitoring** requires a separate Node server (Railway, Render, etc.); set `VITE_SOCKET_URL` to that URL.
 - Swagger docs: `https://your-app.vercel.app/api/docs`
 

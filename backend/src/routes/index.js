@@ -67,6 +67,7 @@ router.get('/attendance/faculty/:facultyId', authenticate, authorize(PERMISSIONS
 router.get('/attendance/institution/:institutionId?', authenticate, authorize(PERMISSIONS.ATTENDANCE_READ), attendanceController.getInstitutionDashboard);
 
 // Payments & Renewals
+router.get('/payments/config', authenticate, authorize(PERMISSIONS.PAYMENTS_READ), paymentController.getPaymentConfig);
 router.post('/payments', authenticate, authorize(PERMISSIONS.PAYMENTS_CREATE), paymentController.createPayment);
 router.post('/payments/:invoiceNumber/verify', paymentController.verifyPayment);
 router.get('/payments', authenticate, authorize(PERMISSIONS.PAYMENTS_READ), paymentController.getPayments);
@@ -110,5 +111,6 @@ router.post('/monitoring/streams/:id/snapshot', authenticate, authorize(PERMISSI
 // Documents
 router.post('/documents/upload', authenticate, authorize(PERMISSIONS.DOCUMENTS_UPLOAD), upload.single('file'), moduleController.uploadDocument);
 router.get('/documents/:id/url', authenticate, authorize(PERMISSIONS.DOCUMENTS_READ), moduleController.getDocumentUrl);
+router.get('/documents/:id/download', authenticate, authorize(PERMISSIONS.DOCUMENTS_READ), moduleController.downloadDocument);
 
 module.exports = router;

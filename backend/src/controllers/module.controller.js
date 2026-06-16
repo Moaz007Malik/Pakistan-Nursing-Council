@@ -237,6 +237,26 @@ exports.uploadDocument = asyncHandler(async (req, res) => {
 exports.getDocumentUrl = asyncHandler(async (req, res) => {
   const doc = await Document.findById(req.params.id);
   if (!doc) throw new ApiError(404, 'Document not found');
-  const url = await storageService.getSignedUrl(doc.storageKey);
+
+  const url = doc.storageProvider === 'local'
+    ? `/api/v1/documents/${doc._id}/download`
+    : await storageService.getSignedUrl(doc.storageKey);
+
   res.json({ success: true, data: { url, document: doc } });
+});
+
+exports.downloadDocument = asyncHandler(async (req, res) => {
+  const fs = require('fs');
+  const doc = await Document.findById(req.params.id);
+  if (!doc) throw new ApiError(404, 'Document not found');
+  if (doc.storageProvider !== 'local') {
+    throw new ApiError(400, 'Direct download only available for local storage');
+  }
+
+  const filePath = storageService.getLocalFilePath(doc.storageKey);
+  if (!fs.existsSync(filePath)) throw new ApiError(404, 'File not found on disk');
+
+  res.setHeader('Content-Type', doc.mimeType || 'application/octet-stream');
+  res.setHeader('Content-Disposition', `inline; filename="${doc.originalName}"`);
+  fs.createReadStream(filePath).pipe(res);
 });

@@ -11,7 +11,13 @@ module.exports = {
     refreshExpire: process.env.JWT_REFRESH_EXPIRE || '7d',
   },
   storage: {
+    // local = disk folder (dev/Docker only) | minio = self-hosted S3-compatible (docker-compose)
+    // s3_compatible = any S3 API (Cloudflare R2, B2, DO Spaces, hosted MinIO) — no AWS account required
+    // s3 = AWS S3
     provider: process.env.STORAGE_PROVIDER || 'minio',
+    local: {
+      uploadDir: process.env.LOCAL_STORAGE_PATH || 'uploads',
+    },
     minio: {
       endPoint: process.env.MINIO_ENDPOINT || 'localhost',
       port: parseInt(process.env.MINIO_PORT, 10) || 9000,
@@ -19,6 +25,14 @@ module.exports = {
       accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
       secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
       bucket: process.env.MINIO_BUCKET || 'pnmc-documents',
+    },
+    s3Compatible: {
+      endpoint: process.env.S3_ENDPOINT,
+      accessKeyId: process.env.S3_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.S3_REGION || process.env.AWS_REGION || 'auto',
+      bucket: process.env.S3_BUCKET || process.env.AWS_S3_BUCKET,
+      forcePathStyle: process.env.S3_FORCE_PATH_STYLE !== 'false',
     },
     aws: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -31,6 +45,9 @@ module.exports = {
     url: process.env.REDIS_URL || 'redis://localhost:6379',
   },
   payment: {
+    // false = payments auto-complete (bypass gateways, for dev/staging)
+    // true = real Stripe / Easypaisa / JazzCash must be configured
+    enabled: process.env.PAYMENTS_ENABLED === 'true',
     stripe: {
       secretKey: process.env.STRIPE_SECRET_KEY,
       webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,

@@ -4,6 +4,10 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { paginate, paginatedResponse } = require('../utils/pagination');
 
+exports.getPaymentConfig = asyncHandler(async (req, res) => {
+  res.json({ success: true, data: paymentService.getConfig() });
+});
+
 exports.createPayment = asyncHandler(async (req, res) => {
   const result = await paymentService.createPayment({
     ...req.body,

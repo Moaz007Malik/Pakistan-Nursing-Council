@@ -15,6 +15,20 @@ class PaymentGateway {
   }
 }
 
+class BypassGateway extends PaymentGateway {
+  async initiate(payment) {
+    return {
+      checkoutUrl: `${config.frontendUrl}/payments/success?invoice=${payment.invoiceNumber}&bypass=true`,
+      transactionId: `BYPASS-${payment.invoiceNumber}`,
+      bypassed: true,
+    };
+  }
+
+  async verify() {
+    return true;
+  }
+}
+
 class StripeGateway extends PaymentGateway {
   constructor() {
     super();
@@ -62,7 +76,7 @@ class EasypaisaGateway extends PaymentGateway {
     const hash = crypto.createHash('sha256').update(hashString).digest('hex');
 
     return {
-      checkoutUrl: `https://easypay.easypaisa.com.pk/easypay/Index.jsf`,
+      checkoutUrl: 'https://easypay.easypaisa.com.pk/easypay/Index.jsf',
       transactionId: orderId,
       formData: { merchantId, storeId, orderId, amount, hash },
     };
@@ -100,13 +114,83 @@ class JazzCashGateway extends PaymentGateway {
 class PaymentService {
   constructor() {
     this.gateways = {
+      bypass: new BypassGateway(),
       stripe: new StripeGateway(),
       easypaisa: new EasypaisaGateway(),
       jazzcash: new JazzCashGateway(),
     };
   }
 
+  isEnabled() {
+    return config.payment.enabled;
+  }
+
+  getConfig() {
+    return {
+      enabled: this.isEnabled(),
+      mode: this.isEnabled() ? 'live' : 'bypass',
+      message: this.isEnabled()
+        ? 'Payment gateways are enabled. Real charges apply.'
+        : 'Payment gateways are disabled. All payments auto-complete without charging.',
+      availableGateways: this.isEnabled()
+        ? ['stripe', 'easypaisa', 'jazzcash'].filter((g) => this.isGatewayConfigured(g))
+        : ['bypass'],
+    };
+  }
+
+  isGatewayConfigured(gateway) {
+    if (gateway === 'stripe') return Boolean(config.payment.stripe.secretKey);
+    if (gateway === 'easypaisa') return Boolean(config.payment.easypaisa.merchantId);
+    if (gateway === 'jazzcash') return Boolean(config.payment.jazzcash.merchantId);
+    return false;
+  }
+
+  async completePayment(payment, gatewayData = { bypass: true }) {
+    payment.status = 'completed';
+    payment.paidAt = new Date();
+    payment.receiptNumber = `RCP-${payment.invoiceNumber}`;
+    payment.gatewayResponse = gatewayData;
+    await payment.save();
+    return payment;
+  }
+
+  async createBypassPayment({ paymentType, amount, currency, payer, institution, relatedEntity }) {
+    const payment = await Payment.create({
+      invoiceNumber: generateInvoiceNumber(),
+      paymentType,
+      gateway: 'bypass',
+      amount,
+      currency: currency || 'PKR',
+      payer,
+      institution,
+      relatedEntity,
+      status: 'pending',
+      metadata: { bypassed: true, reason: 'PAYMENTS_ENABLED=false' },
+    });
+
+    const result = await this.gateways.bypass.initiate(payment);
+    payment.gatewayTransactionId = result.transactionId;
+    await this.completePayment(payment, { bypass: true, mode: 'auto_pass' });
+
+    logger.info(`Payment bypassed (auto-pass): ${payment.invoiceNumber}`);
+    return { payment, ...result, bypassed: true };
+  }
+
   async createPayment({ paymentType, gateway, amount, currency, payer, institution, relatedEntity }) {
+    if (!this.isEnabled()) {
+      return this.createBypassPayment({
+        paymentType, amount, currency, payer, institution, relatedEntity,
+      });
+    }
+
+    if (!gateway || gateway === 'bypass') {
+      throw new ApiError(400, 'A payment gateway is required when PAYMENTS_ENABLED=true');
+    }
+
+    if (!this.isGatewayConfigured(gateway)) {
+      throw new ApiError(503, `${gateway} is not configured. Check environment variables.`);
+    }
+
     const payment = await Payment.create({
       invoiceNumber: generateInvoiceNumber(),
       paymentType,
@@ -130,19 +214,25 @@ class PaymentService {
     return { payment, ...result };
   }
 
-  async verifyPayment(invoiceNumber, gatewayData) {
+  async verifyPayment(invoiceNumber, gatewayData = {}) {
     const payment = await Payment.findOne({ invoiceNumber });
     if (!payment) throw new ApiError(404, 'Payment not found');
+
+    if (payment.status === 'completed') {
+      return payment;
+    }
+
+    if (!this.isEnabled() || payment.gateway === 'bypass') {
+      await this.completePayment(payment, { ...gatewayData, bypass: true, mode: 'auto_pass' });
+      logger.info(`Payment verify bypassed (auto-pass): ${invoiceNumber}`);
+      return payment;
+    }
 
     const gateway = this.gateways[payment.gateway];
     const verified = await gateway.verify(payment.gatewayTransactionId, gatewayData);
 
     if (verified) {
-      payment.status = 'completed';
-      payment.paidAt = new Date();
-      payment.receiptNumber = `RCP-${payment.invoiceNumber}`;
-      payment.gatewayResponse = gatewayData;
-      await payment.save();
+      await this.completePayment(payment, gatewayData);
     } else {
       payment.status = 'failed';
       payment.gatewayResponse = gatewayData;
