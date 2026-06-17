@@ -10,7 +10,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
   const { register, handleSubmit } = useForm({
-    defaultValues: { email: 'admin@pnmc.com', password: 'Admin@123' },
+    defaultValues: { email: '', password: '' },
   });
 
   const onSubmit = async (data) => {
@@ -38,10 +38,6 @@ export default function LoginPage() {
               {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
             </Button>
           </form>
-
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
-            Demo: admin@pnmc.com / Admin@123
-          </Typography>
         </CardContent>
       </Card>
     </Box>

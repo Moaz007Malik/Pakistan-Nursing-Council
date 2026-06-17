@@ -1,13 +1,14 @@
 import { io } from 'socket.io-client';
-import { SOCKET_URL } from '../config/env';
+import { getSocketUrl } from '../config/env';
 
 let socket = null;
 
 export const connectSocket = (token) => {
-  if (!SOCKET_URL) return null;
+  const socketUrl = getSocketUrl();
+  if (!socketUrl) return null;
   if (socket?.connected) return socket;
 
-  socket = io(SOCKET_URL, {
+  socket = io(socketUrl, {
     auth: { token },
     transports: ['websocket', 'polling'],
   });

@@ -1,12 +1,11 @@
 import api from '../services/api';
-import { API_BASE_URL } from '../config/env';
+import { getApiOrigin } from '../config/env';
 
 export function resolveDocumentUrl(url) {
   if (!url) return url;
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  if (url.startsWith('/api/')) return `${origin}${url}`;
-  if (url.startsWith('/')) return `${origin}${API_BASE_URL.replace(/\/api\/v1$/, '')}${url}`;
+  const origin = getApiOrigin();
+  if (url.startsWith('/')) return `${origin}${url}`;
   return url;
 }
 
