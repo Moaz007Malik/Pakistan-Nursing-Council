@@ -3,7 +3,7 @@ import {
   Box, Typography, Button, LinearProgress, Alert, Chip, IconButton,
 } from '@mui/material';
 import { CloudUpload, Close, OpenInNew } from '@mui/icons-material';
-import { uploadDocument, getDocumentUrl, ACCEPT_PDF_IMAGE } from '../../utils/uploadDocument';
+import { uploadDocument, getDocumentUrl, resolveDocumentUrl, ACCEPT_PDF_IMAGE } from '../../utils/uploadDocument';
 
 export default function DocumentUploadField({
   label,
@@ -47,7 +47,9 @@ export default function DocumentUploadField({
   const openDocument = async () => {
     if (!document?._id) return;
     try {
-      const url = document.metadata?.secureUrl || await getDocumentUrl(document._id);
+      const url = resolveDocumentUrl(document.viewUrl)
+        || document.metadata?.secureUrl
+        || await getDocumentUrl(document._id);
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch {
       setError('Could not open file');

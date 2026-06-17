@@ -1,12 +1,14 @@
-const { Faculty } = require('../models');
+const Faculty = require('../models/Faculty');
 const portalUserService = require('../services/portalUser.service');
 const {
   assignFacultyRegistration,
   activateFacultyMembership,
 } = require('../services/registration.service');
-const asyncHandler = require('../utils/asyncHandler');const ApiError = require('../utils/ApiError');
+const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/ApiError');
 const { ROLES } = require('../config/constants');
 const { paginate, paginatedResponse, buildFilter } = require('../utils/pagination');
+const { attachFacultyDocumentUrls } = require('../utils/documentUrls');
 
 const countFacultyDocuments = (faculty) => {
   const d = faculty.documents || {};
@@ -115,15 +117,6 @@ exports.getFacultyList = asyncHandler(async (req, res) => {
   );
   const data = await query;
 
-  await Promise.all(
-    data
-      .filter((f) => !f.registrationNumber)
-      .map(async (f) => {
-        await assignFacultyRegistration(f);
-        await f.save();
-      })
-  );
-
   const enriched = data.map((f) => ({
     ...f.toObject(),
     documentCount: countFacultyDocuments(f),
@@ -144,10 +137,8 @@ exports.getFaculty = asyncHandler(async (req, res) => {
     await faculty.save();
   }
 
-  res.json({ success: true, data: faculty });
+  res.json({ success: true, data: attachFacultyDocumentUrls(faculty) });
 });
-
-exports.updateFaculty = asyncHandler(async (req, res) => {
   const faculty = await Faculty.findById(req.params.id);
   if (!faculty) throw new ApiError(404, 'Faculty not found');
 

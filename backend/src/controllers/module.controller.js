@@ -386,11 +386,14 @@ exports.uploadDocument = asyncHandler(async (req, res) => {
 });
 
 exports.getDocumentUrl = asyncHandler(async (req, res) => {
+  const Document = require('../models/Document');
   const doc = await Document.findById(req.params.id);
   if (!doc) throw new ApiError(404, 'Document not found');
 
   let url;
-  if (doc.storageProvider === 'local') {
+  if (doc.metadata?.secureUrl) {
+    url = doc.metadata.secureUrl;
+  } else if (doc.storageProvider === 'local') {
     url = `/api/documents/${doc._id}/download`;
   } else {
     url = await storageService.getSignedUrl(doc.storageKey, 3600, doc.metadata);

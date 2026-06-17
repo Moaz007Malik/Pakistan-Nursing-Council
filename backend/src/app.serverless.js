@@ -1,9 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const compression = require('compression');
 const cookieParser = require('cookie-parser');
+const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const config = require('./config');
@@ -24,35 +22,23 @@ const getAllowedOrigins = () => [
 
 const isOriginAllowed = (origin) => {
   if (!origin) return true;
-
-  const allowedOrigins = getAllowedOrigins();
-  if (allowedOrigins.includes(origin)) return true;
-
+  if (getAllowedOrigins().includes(origin)) return true;
   try {
     const { hostname } = new URL(origin);
     if (/\.vercel\.app$/i.test(hostname)) return true;
-    if (config.env === 'development' && (hostname === 'localhost' || hostname === '127.0.0.1')) {
-      return true;
-    }
   } catch {
     return false;
   }
-
   return false;
 };
 
 app.use(cors({
-  origin: (origin, callback) => {
-    callback(null, isOriginAllowed(origin));
-  },
+  origin: (origin, callback) => callback(null, isOriginAllowed(origin)),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-app.use(compression());
-app.use(morgan(config.env === 'development' ? 'dev' : 'combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -62,34 +48,16 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api', (req, res) => {
-  res.json({
-    success: true,
-    name: 'PNMC API',
-    docs: '/api/docs',
-    health: '/health',
-  });
+  res.json({ success: true, name: 'PNMC API', health: '/health' });
 });
 
-app.use('/api/docs', (req, res, next) => {
-  const swaggerUi = require('swagger-ui-express');
-  const swaggerSpec = require('./config/swagger');
-  return swaggerUi.serve(req, res, () => swaggerUi.setup(swaggerSpec)(req, res, next));
+const apiRouter = express.Router();
+apiRouter.use((req, res, next) => {
+  if (req.method === 'OPTIONS') return next();
+  return apiLimiter(req, res, next);
 });
-
-let apiRouter;
-const getApiRouter = () => {
-  if (!apiRouter) {
-    apiRouter = express.Router();
-    apiRouter.use((req, res, next) => {
-      if (req.method === 'OPTIONS') return next();
-      return apiLimiter(req, res, next);
-    });
-    apiRouter.use(require('./routes'));
-  }
-  return apiRouter;
-};
-
-app.use('/api', (req, res, next) => getApiRouter()(req, res, next));
+apiRouter.use(routes);
+app.use('/api', apiRouter);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });

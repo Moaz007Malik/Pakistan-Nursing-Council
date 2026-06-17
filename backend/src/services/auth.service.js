@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const config = require('../config');
-const { User } = require('../models');
+const User = require('../models/User');
 const ApiError = require('../utils/ApiError');
 
 class AuthService {

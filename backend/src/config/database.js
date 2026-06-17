@@ -18,7 +18,7 @@ const assertProductionMongoUri = async () => {
   const uri = await resolveMongoUri();
   if (uri.includes('127.0.0.1') || uri.includes('localhost')) {
     throw new Error(
-      'MONGODB_URI is not set on the server. Add it in Vercel → Project → Settings → Environment Variables.'
+      'MONGODB_URI is not set on Vercel. Add MONGODB_URI and MONGODB_URI_DIRECT in Project → Settings → Environment Variables.'
     );
   }
 };
@@ -45,31 +45,26 @@ const connectDB = async () => {
     };
 
     try {
-      let conn;
-      try {
-        conn = await tryConnect(false);
-      } catch (error) {
-        if (isSrvLookupError(error)) {
-          logger.warn(
-            'MongoDB SRV DNS lookup failed — retrying with direct connection. '
-            + 'Set MONGODB_DNS_SRV=false on the server to skip SRV permanently.'
-          );
-          conn = await tryConnect(true);
-        } else {
-          throw error;
-        }
-      }
+      const preferDirect = isServerless || process.env.MONGODB_DNS_SRV === 'false';
+      const conn = await tryConnect(preferDirect);
 
       logger.info(`MongoDB Connected: ${conn.connection.host} (database: ${conn.connection.name})`);
       return conn;
     } catch (error) {
+      if (!isServerless && isSrvLookupError(error)) {
+        logger.warn('MongoDB SRV failed — retrying with direct connection.');
+        const conn = await tryConnect(true);
+        logger.info(`MongoDB Connected: ${conn.connection.host} (database: ${conn.connection.name})`);
+        return conn;
+      }
+
       global.__mongooseConnPromise = null;
 
       if (error.message?.includes('Authentication failed')) {
         logger.error('MongoDB authentication failed. Check MONGODB_URI credentials.');
       } else if (isSrvLookupError(error)) {
         logger.error(
-          'MongoDB DNS/SRV lookup failed. Set MONGODB_DNS_SRV=false and MONGODB_DNS_SERVERS=8.8.8.8,1.1.1.1 on the server.'
+          'MongoDB DNS failed on Vercel. Set MONGODB_URI_DIRECT to the Atlas standard connection string (run: npm run mongo:direct-uri).'
         );
       }
 

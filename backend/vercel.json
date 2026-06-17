@@ -1,12 +1,25 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
+    { "source": "/health", "destination": "/api/health" },
+    { "source": "/api/((?!auth/login$|auth/refresh$).*)", "destination": "/api" }
   ],
   "functions": {
     "api/index.js": {
       "maxDuration": 10,
       "memory": 1024
+    },
+    "api/auth/login.js": {
+      "maxDuration": 10,
+      "memory": 1024
+    },
+    "api/auth/refresh.js": {
+      "maxDuration": 10,
+      "memory": 1024
+    },
+    "api/health.js": {
+      "maxDuration": 10,
+      "memory": 256
     }
   }
 }

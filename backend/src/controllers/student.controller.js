@@ -1,4 +1,4 @@
-const { Student } = require('../models');
+const Student = require('../models/Student');
 const portalUserService = require('../services/portalUser.service');
 const {
   assignStudentRegistration,
@@ -8,6 +8,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { ROLES } = require('../config/constants');
 const { paginate, paginatedResponse, buildFilter } = require('../utils/pagination');
+const { attachStudentDocumentUrls } = require('../utils/documentUrls');
 
 const countStudentDocuments = (student) => {
   const d = student.documents || {};
@@ -117,15 +118,6 @@ exports.getStudents = asyncHandler(async (req, res) => {
   );
   const data = await query;
 
-  await Promise.all(
-    data
-      .filter((s) => !s.registrationNumber)
-      .map(async (s) => {
-        await assignStudentRegistration(s);
-        await s.save();
-      })
-  );
-
   const enriched = data.map((s) => ({
     ...s.toObject(),
     documentCount: countStudentDocuments(s),
@@ -146,10 +138,8 @@ exports.getStudent = asyncHandler(async (req, res) => {
     await student.save();
   }
 
-  res.json({ success: true, data: student });
+  res.json({ success: true, data: attachStudentDocumentUrls(student) });
 });
-
-exports.updateStudent = asyncHandler(async (req, res) => {
   const student = await Student.findById(req.params.id);
   if (!student) throw new ApiError(404, 'Student not found');
 

@@ -111,23 +111,38 @@ const resolveMongoUri = async ({ forceDirect = false } = {}) => {
 
   const baseUri = process.env.MONGODB_URI || DEFAULT_URI;
   const directUri = process.env.MONGODB_URI_DIRECT?.trim();
+  const cacheKey = `${forceDirect}:${directUri || ''}:${baseUri}`;
 
-  if (!useSrvDns({ forceDirect })) {
-    if (directUri) return directUri;
-    if (baseUri.startsWith('mongodb+srv://')) {
-      return convertSrvToDirect(baseUri);
-    }
-    return baseUri;
+  if (global.__mongoResolvedUri?.[cacheKey]) {
+    return global.__mongoResolvedUri[cacheKey];
   }
 
-  return baseUri;
+  let resolved;
+  if (!useSrvDns({ forceDirect })) {
+    if (directUri) {
+      resolved = directUri;
+    } else if (baseUri.startsWith('mongodb+srv://')) {
+      resolved = await convertSrvToDirect(baseUri);
+    } else {
+      resolved = baseUri;
+    }
+  } else {
+    resolved = baseUri;
+  }
+
+  global.__mongoResolvedUri = global.__mongoResolvedUri || {};
+  global.__mongoResolvedUri[cacheKey] = resolved;
+  return resolved;
 };
 
 const getMongoConnectOptions = () => {
   const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
   const options = {
-    serverSelectionTimeoutMS: isServerless ? 8000 : 15000,
-    connectTimeoutMS: isServerless ? 8000 : 30000,
+    serverSelectionTimeoutMS: isServerless ? 5000 : 15000,
+    connectTimeoutMS: isServerless ? 5000 : 30000,
+    socketTimeoutMS: isServerless ? 10000 : 45000,
+    maxPoolSize: isServerless ? 1 : 10,
+    minPoolSize: isServerless ? 0 : 1,
   };
   if (isTruthy(process.env.MONGODB_IPV4_ONLY)) {
     options.family = 4;
