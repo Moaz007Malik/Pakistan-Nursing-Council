@@ -2,11 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 const { authenticate } = require('../middleware/auth');
-
-const lazyHandler = (exportName) => (req, res, next) => {
-  const authController = require('../controllers/auth.controller');
-  return authController[exportName](req, res, next);
-};
+const authController = require('../controllers/auth.controller');
 
 const router = express.Router();
 
@@ -20,19 +16,19 @@ router.post(
     body('role').notEmpty(),
   ],
   validate,
-  lazyHandler('register')
+  authController.register
 );
 
 router.post(
   '/login',
   [body('email').isEmail(), body('password').notEmpty()],
   validate,
-  lazyHandler('login')
+  authController.login
 );
 
-router.post('/refresh', lazyHandler('refreshToken'));
-router.post('/logout', authenticate, lazyHandler('logout'));
-router.get('/me', authenticate, lazyHandler('getMe'));
-router.patch('/profile', authenticate, lazyHandler('updateProfile'));
+router.post('/refresh', authController.refreshToken);
+router.post('/logout', authenticate, authController.logout);
+router.get('/me', authenticate, authController.getMe);
+router.patch('/profile', authenticate, authController.updateProfile);
 
 module.exports = router;

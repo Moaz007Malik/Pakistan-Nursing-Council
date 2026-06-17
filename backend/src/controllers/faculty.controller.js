@@ -139,6 +139,8 @@ exports.getFaculty = asyncHandler(async (req, res) => {
 
   res.json({ success: true, data: attachFacultyDocumentUrls(faculty) });
 });
+
+exports.updateFaculty = asyncHandler(async (req, res) => {
   const faculty = await Faculty.findById(req.params.id);
   if (!faculty) throw new ApiError(404, 'Faculty not found');
 

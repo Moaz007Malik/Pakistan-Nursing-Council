@@ -140,6 +140,8 @@ exports.getStudent = asyncHandler(async (req, res) => {
 
   res.json({ success: true, data: attachStudentDocumentUrls(student) });
 });
+
+exports.updateStudent = asyncHandler(async (req, res) => {
   const student = await Student.findById(req.params.id);
   if (!student) throw new ApiError(404, 'Student not found');
 
