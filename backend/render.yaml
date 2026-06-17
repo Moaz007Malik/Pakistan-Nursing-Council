@@ -1,12 +1,10 @@
-# Render Blueprint — persistent Node.js API (not serverless).
-# Deploy: Dashboard → New → Blueprint → connect this repo.
-# Frontend stays on Vercel; set VITE_API_URL to the Render service URL + /api.
+# Render Blueprint — deploy from the backend folder repo root.
+# Dashboard → New → Blueprint, or Web Service with root = this directory.
 
 services:
   - type: web
     name: pnmc-api
     runtime: node
-    rootDir: backend
     buildCommand: npm ci --omit=dev
     startCommand: npm start
     healthCheckPath: /health

@@ -4,7 +4,6 @@ const {
   resolveMongoUri,
   getMongoConnectOptions,
   isSrvLookupError,
-  prefersDirectConnection,
 } = require('./mongodbUri');
 
 const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
@@ -14,7 +13,7 @@ if (isServerless) {
 }
 
 const assertProductionMongoUri = async () => {
-  const { uri } = await resolveMongoUri({ forceDirect: prefersDirectConnection() || isServerless });
+  const { uri } = await resolveMongoUri();
   const isRemote = process.env.NODE_ENV === 'production' || isServerless;
 
   if (isRemote && (uri.includes('127.0.0.1') || uri.includes('localhost'))) {
@@ -45,17 +44,19 @@ const connectDB = async () => {
     };
 
     try {
-      const useDirect = isServerless || prefersDirectConnection();
-      const conn = await tryConnect(useDirect);
-
+      const conn = await tryConnect(false);
       logger.info(`MongoDB Connected: ${conn.connection.host} (database: ${conn.connection.name})`);
       return conn;
     } catch (error) {
-      if (!isServerless && !prefersDirectConnection() && isSrvLookupError(error)) {
-        logger.warn('MongoDB SRV failed — retrying with direct connection.');
-        const conn = await tryConnect(true);
-        logger.info(`MongoDB Connected: ${conn.connection.host} (database: ${conn.connection.name})`);
-        return conn;
+      if (isSrvLookupError(error)) {
+        logger.warn('MongoDB SRV lookup failed — retrying with direct shard hosts.');
+        try {
+          const conn = await tryConnect(true);
+          logger.info(`MongoDB Connected: ${conn.connection.host} (database: ${conn.connection.name})`);
+          return conn;
+        } catch (retryError) {
+          error = retryError;
+        }
       }
 
       global.__mongooseConnPromise = null;
@@ -63,9 +64,7 @@ const connectDB = async () => {
       if (error.message?.includes('Authentication failed')) {
         logger.error('MongoDB authentication failed. Check MONGODB_URI credentials.');
       } else if (isSrvLookupError(error)) {
-        logger.error(
-          'MongoDB DNS failed. Set MONGODB_DNS_SRV=false and MONGODB_DNS_SERVERS=8.8.8.8,1.1.1.1 on Vercel.'
-        );
+        logger.error('MongoDB DNS failed. Check MONGODB_URI and Atlas network access (0.0.0.0/0).');
       }
 
       logger.error(`MongoDB connection error: ${error.message}`);
