@@ -2,9 +2,9 @@ const trimSlash = (value) => String(value || '').replace(/\/$/, '');
 
 const isAbsoluteUrl = (value) => /^https?:\/\//i.test(value);
 
-const rawApiUrl = import.meta.env.VITE_API_URL || '/api/v1';
+const rawApiUrl = import.meta.env.VITE_API_URL || '/api';
 
-/** Axios base URL — path (`/api/v1`) for local proxy, or full URL in production. */
+/** Axios base URL — path (`/api`) for local proxy, or full URL in production. */
 export const API_BASE_URL = trimSlash(rawApiUrl);
 
 /**

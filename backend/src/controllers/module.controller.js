@@ -391,7 +391,7 @@ exports.getDocumentUrl = asyncHandler(async (req, res) => {
 
   let url;
   if (doc.storageProvider === 'local') {
-    url = `/api/v1/documents/${doc._id}/download`;
+    url = `/api/documents/${doc._id}/download`;
   } else {
     url = await storageService.getSignedUrl(doc.storageKey, 3600, doc.metadata);
   }

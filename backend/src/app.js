@@ -61,7 +61,25 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(async (req, res, next) => {
+// No database required
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/api', (req, res) => {
+  res.json({
+    success: true,
+    name: 'PNMC API',
+    docs: '/api/docs',
+    health: '/health',
+  });
+});
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+const apiRouter = express.Router();
+
+apiRouter.use(async (req, res, next) => {
   if (req.method === 'OPTIONS') return next();
 
   try {
@@ -75,17 +93,14 @@ app.use(async (req, res, next) => {
   }
 });
 
-app.use('/api/', (req, res, next) => {
+apiRouter.use((req, res, next) => {
   if (req.method === 'OPTIONS') return next();
   return apiLimiter(req, res, next);
 });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+apiRouter.use(routes);
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api/v1', routes);
+app.use('/api', apiRouter);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });

@@ -124,7 +124,11 @@ const resolveMongoUri = async ({ forceDirect = false } = {}) => {
 };
 
 const getMongoConnectOptions = () => {
-  const options = { serverSelectionTimeoutMS: 15000 };
+  const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+  const options = {
+    serverSelectionTimeoutMS: isServerless ? 8000 : 15000,
+    connectTimeoutMS: isServerless ? 8000 : 30000,
+  };
   if (isTruthy(process.env.MONGODB_IPV4_ONLY)) {
     options.family = 4;
   }

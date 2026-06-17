@@ -11,7 +11,7 @@ const options = {
       contact: { name: 'PNMC Support', email: 'support@pnmc.com' },
     },
     servers: [
-      { url: `http://localhost:${config.port}/api/v1`, description: 'Development' },
+      { url: `http://localhost:${config.port}/api`, description: 'Development' },
     ],
     components: {
       securitySchemes: {

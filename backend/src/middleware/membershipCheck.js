@@ -12,7 +12,7 @@ const MEMBERSHIP_EXEMPT = [
 const membershipCheck = async (req, res, next) => {
   if (!req.user) return next();
 
-  const path = req.originalUrl.replace('/api/v1', '');
+  const path = req.originalUrl.replace(/^\/api/, '').split('?')[0];
   if (MEMBERSHIP_EXEMPT.some((p) => path.startsWith(p))) return next();
   if (req.method === 'GET') return next();
 
