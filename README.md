@@ -1,22 +1,13 @@
 # PNMC Management System
 
-Enterprise-grade Nursing & Midwifery Council Management System built with the MERN stack.
-
-The application lives in two folders only — each with its own `.env`:
-
-| Folder | Purpose | Env file |
-|--------|---------|----------|
-| `backend/` | Express API, MongoDB, uploads | `backend/.env` |
-| `frontend/` | React SPA (Vite) | `frontend/.env` |
-
-## Technology Stack
+Enterprise-grade Nursing & Midwifery Council Management System — **single Next.js full-stack project**.
 
 | Layer | Technologies |
 |-------|-------------|
-| Frontend | React, Redux Toolkit, Material UI, React Query, React Hook Form, Chart.js, React Router |
-| Backend | Node.js, Express, MongoDB, Mongoose, JWT, RBAC |
+| Frontend | Next.js 15, React, Redux Toolkit, Material UI, React Query, React Router (in-app) |
+| Backend | Express API (same repo), MongoDB, Mongoose, JWT, RBAC |
 | Storage | Local disk (dev) or Cloudinary (production) |
-| Deployment | Vercel (frontend + optional backend), Render (persistent API) |
+| Deployment | Vercel (recommended) or self-hosted Node server |
 
 ## Quick Start (local)
 
@@ -27,59 +18,36 @@ The application lives in two folders only — each with its own `.env`:
 ### Setup
 
 ```bash
-# Backend
-cp backend/.env.example backend/.env
-cd backend && npm install && npm run seed
-
-# Frontend (new terminal)
-cp frontend/.env.example frontend/.env
-cd frontend && npm install
+cp .env.example .env
+npm install
+npm run seed
 ```
 
 ### Run
 
 ```bash
-# Terminal 1 — API on http://localhost:5000
-cd backend && npm run dev
-
-# Terminal 2 — UI on http://localhost:3000
-cd frontend && npm run dev
+npm run dev
 ```
 
-`frontend/.env` uses `VITE_API_URL=/api` and proxies to `http://localhost:5000` via Vite.  
-All backend secrets and MongoDB config go in `backend/.env` only.
+Opens **http://localhost:3000** — UI and API (`/api`, `/health`) on the same port.
+
+All configuration lives in a single root `.env` file.
 
 ## Production deployment
 
-### Backend
+### Vercel (recommended)
 
-**Option A — Render (recommended, persistent server)**
-
-1. Create a Web Service with **Root Directory** = `backend`, **Start Command** = `npm start`.
-2. Or use **Blueprint** with `backend/render.yaml`.
-3. Set env vars from `backend/.env.example` in the Render dashboard (`MONGODB_URI`, JWT secrets, `FRONTEND_URL`, Cloudinary, etc.).
-
-**Option B — Vercel (serverless)**
-
-1. Import repo with **Root Directory** = `backend`.
-2. Copy env vars from `backend/.env.example` into Vercel Project → Settings → Environment Variables.
-3. Redeploy after env changes: `cd backend && vercel --prod`.
+1. Import the repo with **Root Directory** = `.` (project root).
+2. Set environment variables from `.env.example` in Vercel → Settings → Environment Variables.
+3. API routes are served via `api/index.js` (serverless Express); the UI is built with Next.js.
 
 Health check: `GET /health` should return `"db": "connected"`.
 
-### Frontend (Vercel)
-
-1. Import repo with **Root Directory** = `frontend`.
-2. Set `VITE_API_URL` to your API base + `/api`, e.g. `https://pnmc-backend.vercel.app/api`.
-3. Redeploy after changing env vars.
-
-Set `FRONTEND_URL` on the backend to your live frontend URL for CORS.
-
-### Seed production database (once)
+### Self-hosted
 
 ```bash
-cd backend
-MONGODB_URI="your-atlas-uri" npm run seed
+npm run build
+NODE_ENV=production npm start
 ```
 
 ## Default Credentials (after seed)
@@ -100,37 +68,22 @@ MONGODB_URI="your-atlas-uri" npm run seed
 
 ```
 PNC/
-├── backend/
-│   ├── .env                 # Backend secrets (not committed)
-│   ├── api/                 # Vercel serverless entry
-│   ├── render.yaml          # Render blueprint
-│   ├── vercel.json
-│   └── src/
-│       ├── config/          # loadEnv.js → backend/.env only
-│       ├── controllers/
-│       ├── middleware/
-│       ├── models/
-│       ├── routes/
-│       ├── services/
-│       └── seeds/
-└── frontend/
-    ├── .env                 # VITE_* vars (not committed)
-    ├── vercel.json
-    └── src/
-        ├── components/
-        ├── features/
-        ├── pages/
-        ├── routes/
-        └── services/
+├── .env                    # All secrets & config (not committed)
+├── api/                    # Vercel serverless Express entry
+├── server.js               # Local dev / self-hosted (Next.js + Express)
+├── src/
+│   ├── app/                # Next.js App Router
+│   ├── server/             # Express API (controllers, models, routes, …)
+│   ├── components/         # React UI components
+│   ├── views/              # Page components (routed via React Router)
+│   ├── features/           # Redux slices
+│   ├── services/           # API client
+│   └── store/              # Redux store
+├── frontend/               # Legacy Vite app (deprecated)
+└── backend/                # Legacy Express app (deprecated)
 ```
 
-## Security
-
-- JWT access tokens (15min) + refresh tokens (7 days)
-- Role-based access control (10 roles, 40+ permissions)
-- Rate limiting (100 req/15min API, 10 req/15min auth)
-- Helmet security headers
-- Audit logging with IP tracking
+The `frontend/` and `backend/` folders are kept for reference during migration and can be removed once you confirm the unified app works.
 
 ## License
 
