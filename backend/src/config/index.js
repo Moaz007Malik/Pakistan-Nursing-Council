@@ -25,7 +25,7 @@ module.exports = {
     // local | cloudinary | s3_compatible | s3
     provider: process.env.STORAGE_PROVIDER
       || (process.env.CLOUDINARY_CLOUD_NAME ? 'cloudinary' : null)
-      || (process.env.VERCEL ? 's3_compatible' : 'local'),
+      || 'local',
     local: {
       uploadDir: process.env.LOCAL_STORAGE_PATH || 'uploads',
     },

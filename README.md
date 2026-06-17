@@ -9,7 +9,7 @@ Enterprise-grade Nursing & Midwifery Council Management System built with the ME
 | Frontend | React, Redux Toolkit, Material UI, React Query, React Hook Form, Socket.io, Chart.js, React Router |
 | Backend | Node.js, Express, MongoDB, Mongoose, Socket.io, JWT, RBAC |
 | Storage | Local disk (dev) or S3-compatible cloud (Vercel — e.g. Cloudflare R2) |
-| Deployment | Vercel, optional Docker (MongoDB only) |
+| Deployment | Vercel (frontend), Render or Docker (API) |
 
 ## Modules
 
@@ -58,40 +58,64 @@ docker compose up -d mongodb
 # MONGODB_URI=mongodb://admin:changeme@localhost:27017/pnmc?authSource=admin
 ```
 
-The repo includes `vercel.json` for full-stack deploy (React frontend + Express API as serverless).
+### Optional: Full stack via Docker (API + frontend + MongoDB)
 
-**1. Push to GitHub and import the repo in [Vercel](https://vercel.com).**
+```bash
+docker compose up -d --build
+```
 
-**2. Add environment variables** from `vercel.env.example` in  
-   **Project → Settings → Environment Variables**.
+- Frontend: http://localhost:3000 (nginx proxies `/api` to the Express server)
+- API: http://localhost:5000
+- Swagger: http://localhost:5000/api/docs
+
+## Production deployment
+
+The API is a **normal long-running Express server** (`npm start` → `src/server.js`).  
+Do **not** deploy the backend to Vercel serverless — it causes cold-start timeouts on list/detail routes.
+
+### 1. Backend API (Render — recommended)
+
+1. Push this repo to GitHub.
+2. In [Render](https://render.com): **New → Blueprint** and select the repo (uses `render.yaml`),  
+   **or** **New → Web Service** with **Root Directory** = `backend`, **Start Command** = `npm start`.
+3. Set environment variables (from `backend/.env.example`):
 
 | Variable | Required | Notes |
 |----------|----------|-------|
 | `MONGODB_URI` | Yes | MongoDB Atlas connection string |
 | `JWT_SECRET` | Yes | Strong random string (32+ chars) |
 | `JWT_REFRESH_SECRET` | Yes | Different strong random string |
-| `FRONTEND_URL` | Yes | `https://your-project.vercel.app` or custom domain |
+| `FRONTEND_URL` | Yes | `https://your-frontend.vercel.app` |
 | `NODE_ENV` | Yes | `production` |
-| `VITE_API_URL` | Yes | `/api/v1` (same deployment) |
-| `PAYMENTS_ENABLED` | Yes | `false` = auto-pass payments; `true` = live gateways |
-| `STORAGE_PROVIDER` | For uploads | `cloudinary` + Cloudinary credentials (recommended) or `s3_compatible` for R2/B2 |
+| `STORAGE_PROVIDER` | For uploads | `cloudinary` + Cloudinary credentials |
+| `PAYMENTS_ENABLED` | Yes | `false` for staging |
 
-**3. Deploy.** Vercel runs:
-- `frontend` build → static site
-- `api/index.js` → serverless Express API at `/api/*`
+4. After deploy, note the API URL (e.g. `https://pnmc-api.onrender.com`).
 
-**4. Seed production database** (run once locally against Atlas):
+**Seed production database** (run once locally against Atlas):
 
 ```bash
 MONGODB_URI="your-atlas-uri" npm run seed --prefix backend
 ```
 
-| `VITE_SOCKET_URL` | No | Leave empty on Vercel |
+### 2. Frontend (Vercel)
 
-**Storage:** Use **Cloudinary** (`STORAGE_PROVIDER=cloudinary`) for documents and inspection media. Alternatively, Cloudflare R2 with `STORAGE_PROVIDER=s3_compatible`.
+1. Import the repo in [Vercel](https://vercel.com) with **Root Directory** = `frontend`  
+   (or use root `vercel.json` — frontend only, no serverless API).
+2. Set build env vars before deploy:
+
+| Variable | Example |
+|----------|---------|
+| `VITE_API_URL` | `https://pnmc-api.onrender.com/api` |
+| `VITE_SOCKET_URL` | `https://pnmc-api.onrender.com` |
+
+3. Redeploy the frontend after the API URL is live.
+
+**Storage:** Use **Cloudinary** (`STORAGE_PROVIDER=cloudinary`) for documents and inspection media.
 
 **Payments:** `PAYMENTS_ENABLED=false` auto-passes all payments (good for staging).
-- Swagger docs: `https://your-app.vercel.app/api/docs`
+
+- Swagger docs: `https://your-api.onrender.com/api/docs`
 
 ## Default Credentials (after seed)
 

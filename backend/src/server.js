@@ -17,8 +17,8 @@ const startServer = async () => {
   initializeSocket(io);
   app.set('io', io);
 
-  server.listen(config.port, () => {
-    logger.info(`PNMC API running on port ${config.port} [${config.env}]`);
+  server.listen(config.port, '0.0.0.0', () => {
+    logger.info(`PNMC API running on http://0.0.0.0:${config.port} [${config.env}]`);
     logger.info(`Swagger docs: http://localhost:${config.port}/api/docs`);
   });
 };
