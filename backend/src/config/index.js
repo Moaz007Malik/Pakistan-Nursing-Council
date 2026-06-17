@@ -6,7 +6,6 @@ module.exports = {
   port: parseInt(process.env.PORT, 10) || 5000,
   mongodb: {
     uri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/pnmc',
-    uriDirect: process.env.MONGODB_URI_DIRECT || '',
     dnsSrv: process.env.MONGODB_DNS_SRV !== 'false',
     dnsServers: process.env.MONGODB_DNS_SERVERS || '',
     ipv4Only: process.env.MONGODB_IPV4_ONLY === 'true',

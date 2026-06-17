@@ -7,7 +7,6 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node src/seeds/index.js",
-    "mongo:direct-uri": "node scripts/print-mongo-direct-uri.js",
     "lint": "eslint src/"
   },
   "dependencies": {

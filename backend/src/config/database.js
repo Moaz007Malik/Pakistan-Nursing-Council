@@ -5,7 +5,6 @@ const {
   getMongoConnectOptions,
   isSrvLookupError,
   prefersDirectConnection,
-  isFalsy,
 } = require('./mongodbUri');
 
 const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
@@ -20,12 +19,8 @@ const assertProductionMongoUri = async () => {
 
   if (isRemote && (uri.includes('127.0.0.1') || uri.includes('localhost'))) {
     throw new Error(
-      'MONGODB_URI is missing or points to localhost. Set MONGODB_URI and MONGODB_URI_DIRECT in your host environment variables.'
+      'MONGODB_URI is missing or points to localhost. Set MONGODB_URI to your Atlas connection string.'
     );
-  }
-
-  if (isServerless && !process.env.MONGODB_URI_DIRECT?.trim() && !isFalsy(process.env.MONGODB_DNS_SRV)) {
-    logger.warn('Set MONGODB_URI_DIRECT on Vercel (npm run mongo:direct-uri) and MONGODB_DNS_SRV=false.');
   }
 };
 
@@ -69,7 +64,7 @@ const connectDB = async () => {
         logger.error('MongoDB authentication failed. Check MONGODB_URI credentials.');
       } else if (isSrvLookupError(error)) {
         logger.error(
-          'MongoDB DNS failed. Set MONGODB_URI_DIRECT (npm run mongo:direct-uri) and MONGODB_DNS_SRV=false.'
+          'MongoDB DNS failed. Set MONGODB_DNS_SRV=false and MONGODB_DNS_SERVERS=8.8.8.8,1.1.1.1 on Vercel.'
         );
       }
 

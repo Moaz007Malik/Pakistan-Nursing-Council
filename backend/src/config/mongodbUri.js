@@ -101,26 +101,22 @@ const useSrvDns = ({ forceDirect = false } = {}) => {
   return true;
 };
 
-/** App should connect with a standard mongodb:// URI (no driver SRV lookup). */
-const prefersDirectConnection = () => (
-  isFalsy(process.env.MONGODB_DNS_SRV)
-  || Boolean(process.env.MONGODB_URI_DIRECT?.trim())
-);
+/** Connect with a standard mongodb:// URI instead of driver SRV lookup. */
+const prefersDirectConnection = () => isFalsy(process.env.MONGODB_DNS_SRV);
 
 /**
  * Resolve the MongoDB URI used by the app and seed script.
  *
- * MONGODB_DNS_SRV=true  → mongodb+srv://… (driver SRV lookup)
- * MONGODB_DNS_SRV=false → MUST use MONGODB_URI_DIRECT (no SRV lookups at runtime)
- *                         Run once locally: npm run mongo:direct-uri
+ * MONGODB_DNS_SRV=true  → use MONGODB_URI as-is (mongodb+srv driver lookup)
+ * MONGODB_DNS_SRV=false → convert MONGODB_URI SRV to mongodb:// shard hosts
+ * MONGODB_DNS_SERVERS   → custom DNS for SRV resolution (e.g. 8.8.8.8,1.1.1.1)
  */
-const resolveMongoUri = async ({ forceDirect = false, allowSrvConversion = false } = {}) => {
+const resolveMongoUri = async ({ forceDirect = false } = {}) => {
   configureMongoDns();
 
   const baseUri = process.env.MONGODB_URI || DEFAULT_URI;
-  const directUri = process.env.MONGODB_URI_DIRECT?.trim();
   const srvDisabled = isFalsy(process.env.MONGODB_DNS_SRV);
-  const cacheKey = `${forceDirect}:${allowSrvConversion}:${srvDisabled}:${directUri || ''}:${baseUri}`;
+  const cacheKey = `${forceDirect}:${srvDisabled}:${baseUri}`;
 
   if (global.__mongoResolvedUri?.[cacheKey]) {
     return global.__mongoResolvedUri[cacheKey];
@@ -130,17 +126,9 @@ const resolveMongoUri = async ({ forceDirect = false, allowSrvConversion = false
   let source;
 
   if (!useSrvDns({ forceDirect })) {
-    if (directUri) {
-      resolved = directUri;
-      source = 'MONGODB_URI_DIRECT';
-    } else if (srvDisabled && !allowSrvConversion) {
-      throw new Error(
-        'MONGODB_DNS_SRV is false but MONGODB_URI_DIRECT is not set. '
-        + 'Run locally: npm run mongo:direct-uri — then add the output to your host env vars.'
-      );
-    } else if (baseUri.startsWith('mongodb+srv://')) {
+    if (baseUri.startsWith('mongodb+srv://')) {
       resolved = await convertSrvToDirect(baseUri);
-      source = allowSrvConversion ? 'generated from MONGODB_URI (one-time SRV lookup)' : 'converted from MONGODB_URI';
+      source = 'MONGODB_URI (converted to direct)';
     } else {
       resolved = baseUri;
       source = 'MONGODB_URI';
