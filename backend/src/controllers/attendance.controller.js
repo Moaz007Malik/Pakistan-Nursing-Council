@@ -1,3 +1,4 @@
+const { ROLES } = require('../config/constants');
 const attendanceService = require('../services/attendance.service');
 const { StudentAttendance, FacultyAttendance } = require('../models');
 const asyncHandler = require('../utils/asyncHandler');
@@ -25,7 +26,26 @@ exports.getFacultyAttendance = asyncHandler(async (req, res) => {
 });
 
 exports.getInstitutionDashboard = asyncHandler(async (req, res) => {
-  const institutionId = req.params.institutionId || req.user.institution;
+  let institutionId = req.params.institutionId || req.user.institution;
+
+  // Super admin without institution — use first institution or return empty stats
+  if (!institutionId && req.user.role === ROLES.SUPER_ADMIN) {
+    const { Institution } = require('../models');
+    const first = await Institution.findOne().select('_id');
+    institutionId = first?._id;
+  }
+
+  if (!institutionId) {
+    return res.json({
+      success: true,
+      data: {
+        students: { present: 0, absent: 0, late: 0, leave: 0, total: 0 },
+        faculty: { present: 0, absent: 0, late: 0, leave: 0, total: 0 },
+        date: new Date(),
+      },
+    });
+  }
+
   const dashboard = await attendanceService.getInstitutionAttendanceDashboard(
     institutionId,
     req.query.date

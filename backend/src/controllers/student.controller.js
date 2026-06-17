@@ -1,14 +1,63 @@
 const { Student } = require('../models');
 const { generateRegistrationNumber, generateQRCode } = require('../utils/generators');
-const notificationService = require('../services/notification.service');
+const portalUserService = require('../services/portalUser.service');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
+const { ROLES } = require('../config/constants');
 const { paginate, paginatedResponse, buildFilter } = require('../utils/pagination');
 
+const resolvePortalCredentials = (body) => ({
+  email: body.loginEmail || body.email,
+  password: body.loginPassword || body.password,
+});
+
+const attachPortalUser = async ({ email, password, fullName, institution, phone, existingUserId }) => {
+  if (existingUserId) {
+    if (email || password || fullName || phone) {
+      await portalUserService.updatePortalUser(existingUserId, { email, password, fullName, phone });
+    }
+    return existingUserId;
+  }
+
+  if (!email && !password) return null;
+  if (!email || !password) {
+    throw new ApiError(400, 'Both login email and password are required for portal access');
+  }
+
+  const user = await portalUserService.createPortalUser({
+    email,
+    password,
+    fullName,
+    role: ROLES.STUDENT,
+    institution,
+    phone,
+  });
+  return user._id;
+};
+
 exports.createStudent = asyncHandler(async (req, res) => {
+  const institutionId = req.body.institution || req.user.institution;
+  if (!institutionId) throw new ApiError(400, 'Institution is required');
+
+  const { loginEmail, loginPassword, email, password, ...rest } = req.body;
+  const credentials = resolvePortalCredentials({ loginEmail, loginPassword, email, password });
+  const fullName = rest.personalInfo?.fullName;
+
+  const userId = await attachPortalUser({
+    ...credentials,
+    fullName,
+    institution: institutionId,
+    phone: rest.personalInfo?.contact,
+  });
+
+  if (credentials.email && rest.personalInfo) {
+    rest.personalInfo.email = credentials.email;
+  }
+
   const student = await Student.create({
-    ...req.body,
-    institution: req.body.institution || req.user.institution,
+    ...rest,
+    user: userId || rest.user,
+    institution: institutionId,
     status: 'draft',
     workflow: [
       { step: 'institution_verification', status: 'pending' },
@@ -16,7 +65,12 @@ exports.createStudent = asyncHandler(async (req, res) => {
       { step: 'approval', status: 'pending' },
     ],
   });
-  res.status(201).json({ success: true, data: student });
+
+  res.status(201).json({
+    success: true,
+    data: student,
+    portalAccess: credentials.email ? { email: credentials.email } : null,
+  });
 });
 
 exports.getStudents = asyncHandler(async (req, res) => {
@@ -26,7 +80,9 @@ exports.getStudents = asyncHandler(async (req, res) => {
   }
   const total = await Student.countDocuments(filter);
   const { query, pagination } = paginate(
-    Student.find(filter).populate('institution', 'name'),
+    Student.find(filter)
+      .populate('institution', 'name')
+      .populate('user', 'email'),
     req.query
   );
   const data = await query;
@@ -34,15 +90,51 @@ exports.getStudents = asyncHandler(async (req, res) => {
 });
 
 exports.getStudent = asyncHandler(async (req, res) => {
-  const student = await Student.findById(req.params.id).populate('institution', 'name');
+  const student = await Student.findById(req.params.id)
+    .populate('institution', 'name')
+    .populate('user', 'email firstName lastName');
   if (!student) throw new ApiError(404, 'Student not found');
   res.json({ success: true, data: student });
 });
 
 exports.updateStudent = asyncHandler(async (req, res) => {
-  const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const student = await Student.findById(req.params.id);
   if (!student) throw new ApiError(404, 'Student not found');
+
+  const { loginEmail, loginPassword, email, password, ...updates } = req.body;
+  const credentials = resolvePortalCredentials({ loginEmail, loginPassword, email, password });
+  const fullName = updates.personalInfo?.fullName || student.personalInfo?.fullName;
+
+  if (credentials.email || credentials.password) {
+    const userId = await attachPortalUser({
+      email: credentials.email,
+      password: credentials.password,
+      fullName,
+      institution: student.institution,
+      phone: updates.personalInfo?.contact || student.personalInfo?.contact,
+      existingUserId: student.user,
+    });
+    if (userId) student.user = userId;
+    if (credentials.email) {
+      updates.personalInfo = {
+        ...(student.personalInfo?.toObject?.() || student.personalInfo),
+        ...updates.personalInfo,
+        email: credentials.email,
+      };
+    }
+  }
+
+  Object.assign(student, updates);
+  await student.save();
   res.json({ success: true, data: student });
+});
+
+exports.deleteStudent = asyncHandler(async (req, res) => {
+  const student = await Student.findById(req.params.id);
+  if (!student) throw new ApiError(404, 'Student not found');
+  await portalUserService.deletePortalUser(student.user);
+  await student.deleteOne();
+  res.json({ success: true, message: 'Student deleted' });
 });
 
 exports.advanceWorkflow = asyncHandler(async (req, res) => {

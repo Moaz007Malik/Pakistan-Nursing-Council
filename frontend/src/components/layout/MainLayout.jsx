@@ -1,9 +1,10 @@
 import {
   Box, Drawer, AppBar, Toolbar, Typography, IconButton, List, ListItemButton,
   ListItemIcon, ListItemText, Avatar, Menu, MenuItem, Divider, Badge, useTheme, useMediaQuery,
+  ListSubheader,
 } from '@mui/material';
 import {
-  Menu as MenuIcon, Dashboard, School, People, Person, EventAvailable,
+  Menu as MenuIcon, Dashboard, School, People, EventAvailable,
   Payment, Autorenew, Description, Gavel, Groups, Visibility, Fingerprint,
   Videocam, Notifications, History, Business, Assignment, Logout,
 } from '@mui/icons-material';
@@ -16,32 +17,42 @@ import { ROLES, ROLE_LABELS } from '../../utils/constants';
 
 const DRAWER_WIDTH = 260;
 
-const getNavItems = (role) => {
-  const all = [
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard/admin', roles: [ROLES.SUPER_ADMIN] },
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard/institution', roles: [ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.FACULTY] },
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard/field-officer', roles: [ROLES.FIELD_OFFICER] },
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard/council', roles: [ROLES.COUNCIL_MEMBER] },
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard/committee', roles: [ROLES.COMMITTEE_MEMBER] },
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard/finance', roles: [ROLES.FINANCE_OFFICER] },
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard/monitoring', roles: [ROLES.MONITORING_OFFICER] },
-    { label: 'Dashboard', icon: <Dashboard />, path: '/dashboard/student', roles: [ROLES.STUDENT] },
-    { label: 'Institutions', icon: <Business />, path: '/institutions', roles: [ROLES.SUPER_ADMIN, ROLES.COUNCIL_MEMBER, ROLES.FIELD_OFFICER] },
-    { label: 'Applications', icon: <Assignment />, path: '/institution-applications', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.COUNCIL_MEMBER, ROLES.COMMITTEE_MEMBER] },
-    { label: 'Students', icon: <School />, path: '/students', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.FACULTY, ROLES.COMMITTEE_MEMBER] },
-    { label: 'Faculty', icon: <People />, path: '/faculty', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.COUNCIL_MEMBER] },
-    { label: 'Attendance', icon: <EventAvailable />, path: '/attendance', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.FACULTY, ROLES.STUDENT, ROLES.MONITORING_OFFICER] },
-    { label: 'Inspections', icon: <Visibility />, path: '/inspections', roles: [ROLES.SUPER_ADMIN, ROLES.FIELD_OFFICER, ROLES.COMMITTEE_MEMBER] },
-    { label: 'Affidavits', icon: <Description />, path: '/affidavits', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.COUNCIL_MEMBER, ROLES.COMMITTEE_MEMBER] },
-    { label: 'Committees', icon: <Groups />, path: '/committees', roles: [ROLES.SUPER_ADMIN, ROLES.COMMITTEE_MEMBER] },
-    { label: 'Council', icon: <Gavel />, path: '/council', roles: [ROLES.SUPER_ADMIN, ROLES.COUNCIL_MEMBER] },
-    { label: 'Payments', icon: <Payment />, path: '/payments', roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_OFFICER, ROLES.STUDENT, ROLES.FACULTY, ROLES.INSTITUTION_ADMIN] },
-    { label: 'Renewals', icon: <Autorenew />, path: '/renewals', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.STUDENT, ROLES.FACULTY, ROLES.FINANCE_OFFICER] },
-    { label: 'Biometric', icon: <Fingerprint />, path: '/biometric', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.MONITORING_OFFICER] },
-    { label: 'Monitoring', icon: <Videocam />, path: '/monitoring', roles: [ROLES.SUPER_ADMIN, ROLES.MONITORING_OFFICER] },
-    { label: 'Audit Logs', icon: <History />, path: '/audit-logs', roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_OFFICER] },
-  ];
-  return all.filter((item) => item.roles.includes(role));
+const MODULE_NAV = [
+  { label: 'Institutions', icon: <Business />, path: '/institutions', roles: [ROLES.SUPER_ADMIN, ROLES.COUNCIL_MEMBER, ROLES.FIELD_OFFICER] },
+  { label: 'Applications', icon: <Assignment />, path: '/institution-applications', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.COUNCIL_MEMBER, ROLES.COMMITTEE_MEMBER] },
+  { label: 'Students', icon: <School />, path: '/students', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.FACULTY, ROLES.COMMITTEE_MEMBER] },
+  { label: 'Faculty', icon: <People />, path: '/faculty', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.COUNCIL_MEMBER] },
+  { label: 'Attendance', icon: <EventAvailable />, path: '/attendance', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.FACULTY, ROLES.STUDENT, ROLES.MONITORING_OFFICER] },
+  { label: 'Inspections', icon: <Visibility />, path: '/inspections', roles: [ROLES.SUPER_ADMIN, ROLES.FIELD_OFFICER, ROLES.COMMITTEE_MEMBER] },
+  { label: 'Affidavits', icon: <Description />, path: '/affidavits', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.COUNCIL_MEMBER, ROLES.COMMITTEE_MEMBER] },
+  { label: 'Committees', icon: <Groups />, path: '/committees', roles: [ROLES.SUPER_ADMIN, ROLES.COMMITTEE_MEMBER] },
+  { label: 'Council', icon: <Gavel />, path: '/council', roles: [ROLES.SUPER_ADMIN, ROLES.COUNCIL_MEMBER] },
+  { label: 'Payments', icon: <Payment />, path: '/payments', roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_OFFICER, ROLES.STUDENT, ROLES.FACULTY, ROLES.INSTITUTION_ADMIN] },
+  { label: 'Renewals', icon: <Autorenew />, path: '/renewals', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.STUDENT, ROLES.FACULTY, ROLES.FINANCE_OFFICER] },
+  { label: 'Biometric', icon: <Fingerprint />, path: '/biometric', roles: [ROLES.SUPER_ADMIN, ROLES.INSTITUTION_ADMIN, ROLES.MONITORING_OFFICER] },
+  { label: 'Monitoring', icon: <Videocam />, path: '/monitoring', roles: [ROLES.SUPER_ADMIN, ROLES.MONITORING_OFFICER] },
+  { label: 'Notifications', icon: <Notifications />, path: '/notifications', roles: [ROLES.SUPER_ADMIN, ROLES.COUNCIL_MEMBER, ROLES.COMMITTEE_MEMBER, ROLES.FIELD_OFFICER, ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.FACULTY, ROLES.STUDENT, ROLES.FINANCE_OFFICER, ROLES.MONITORING_OFFICER] },
+  { label: 'Audit Logs', icon: <History />, path: '/audit-logs', roles: [ROLES.SUPER_ADMIN, ROLES.FINANCE_OFFICER] },
+];
+
+const DASHBOARD_NAV = [
+  { label: 'Dashboard', path: '/dashboard/admin', roles: [ROLES.SUPER_ADMIN] },
+  { label: 'Finance Overview', path: '/dashboard/finance', roles: [ROLES.FINANCE_OFFICER] },
+  { label: 'Council Overview', path: '/dashboard/council', roles: [ROLES.COUNCIL_MEMBER] },
+  { label: 'Committee Overview', path: '/dashboard/committee', roles: [ROLES.COMMITTEE_MEMBER] },
+  { label: 'Field Officer Overview', path: '/dashboard/field-officer', roles: [ROLES.FIELD_OFFICER] },
+  { label: 'Institution Overview', path: '/dashboard/institution', roles: [ROLES.INSTITUTION_ADMIN, ROLES.PRINCIPAL, ROLES.FACULTY] },
+  { label: 'Monitoring Center', path: '/dashboard/monitoring', roles: [ROLES.MONITORING_OFFICER] },
+  { label: 'Student Portal', path: '/dashboard/student', roles: [ROLES.STUDENT] },
+];
+
+const getNavSections = (role) => {
+  if (!role) return [];
+
+  const dashboards = DASHBOARD_NAV.filter((item) => item.roles.includes(role));
+  const modules = MODULE_NAV.filter((item) => item.roles.includes(role));
+
+  return { dashboards, modules };
 };
 
 export default function MainLayout() {
@@ -54,7 +65,19 @@ export default function MainLayout() {
   const { sidebarOpen } = useSelector((state) => state.ui);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const navItems = getNavItems(user?.role);
+  const { dashboards, modules } = getNavSections(user?.role);
+
+  const renderNavItem = (item) => (
+    <ListItemButton
+      key={item.path + item.label}
+      selected={location.pathname === item.path}
+      onClick={() => { navigate(item.path); if (isMobile) dispatch(toggleSidebar()); }}
+      sx={{ borderRadius: 2, mb: 0.5 }}
+    >
+      <ListItemIcon sx={{ minWidth: 40 }}>{item.icon || <Dashboard />}</ListItemIcon>
+      <ListItemText primary={item.label} />
+    </ListItemButton>
+  );
 
   const drawer = (
     <Box sx={{ pt: 1 }}>
@@ -67,17 +90,18 @@ export default function MainLayout() {
       </Box>
       <Divider />
       <List sx={{ px: 1, py: 1 }}>
-        {navItems.map((item) => (
-          <ListItemButton
-            key={item.path + item.label}
-            selected={location.pathname === item.path}
-            onClick={() => { navigate(item.path); if (isMobile) dispatch(toggleSidebar()); }}
-            sx={{ borderRadius: 2, mb: 0.5 }}
-          >
-            <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} />
-          </ListItemButton>
-        ))}
+        {dashboards.length > 0 && (
+          <>
+            <ListSubheader sx={{ bgcolor: 'transparent', lineHeight: '32px' }}>Dashboards</ListSubheader>
+            {dashboards.map((item) => renderNavItem({ ...item, icon: <Dashboard /> }))}
+          </>
+        )}
+        {modules.length > 0 && (
+          <>
+            <ListSubheader sx={{ bgcolor: 'transparent', lineHeight: '32px', mt: 1 }}>Modules</ListSubheader>
+            {modules.map(renderNavItem)}
+          </>
+        )}
       </List>
     </Box>
   );
@@ -128,7 +152,17 @@ export default function MainLayout() {
         {drawer}
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8, ml: isMobile ? 0 : 0, bgcolor: 'background.default', minHeight: '100vh' }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          mt: 8,
+          width: { xs: '100%', md: `calc(100% - ${DRAWER_WIDTH}px)` },
+          bgcolor: 'background.default',
+          minHeight: '100vh',
+        }}
+      >
         <Outlet />
       </Box>
     </Box>

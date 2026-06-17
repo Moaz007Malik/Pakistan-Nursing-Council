@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const Minio = require('minio');
 const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { v4: uuidv4 } = require('uuid');
@@ -18,58 +17,26 @@ class StorageService {
       return;
     }
 
-    if (this.provider === 'minio') {
-      this.client = new Minio.Client({
-        endPoint: config.storage.minio.endPoint,
-        port: config.storage.minio.port,
-        useSSL: config.storage.minio.useSSL,
-        accessKey: config.storage.minio.accessKey,
-        secretKey: config.storage.minio.secretKey,
-      });
-      this.bucket = config.storage.minio.bucket;
-      this.ensureBucket();
-      logger.info(`Storage: MinIO at ${config.storage.minio.endPoint}:${config.storage.minio.port}`);
-      return;
-    }
+    const s3Config = this.provider === 's3'
+      ? config.storage.aws
+      : config.storage.s3Compatible;
 
-    if (this.provider === 's3_compatible') {
-      const s3c = config.storage.s3Compatible;
-      this.client = new S3Client({
-        region: s3c.region,
-        endpoint: s3c.endpoint,
-        credentials: {
-          accessKeyId: s3c.accessKeyId,
-          secretAccessKey: s3c.secretAccessKey,
-        },
-        forcePathStyle: s3c.forcePathStyle,
-      });
-      this.bucket = s3c.bucket;
-      logger.info(`Storage: S3-compatible at ${s3c.endpoint}`);
-      return;
-    }
-
-    // AWS S3
-    this.client = new S3Client({
-      region: config.storage.aws.region,
+    const clientOptions = {
+      region: s3Config.region || 'auto',
       credentials: {
-        accessKeyId: config.storage.aws.accessKeyId,
-        secretAccessKey: config.storage.aws.secretAccessKey,
+        accessKeyId: s3Config.accessKeyId,
+        secretAccessKey: s3Config.secretAccessKey,
       },
-    });
-    this.bucket = config.storage.aws.bucket;
-    logger.info('Storage: AWS S3');
-  }
+    };
 
-  async ensureBucket() {
-    try {
-      const exists = await this.client.bucketExists(this.bucket);
-      if (!exists) {
-        await this.client.makeBucket(this.bucket);
-        logger.info(`Created bucket: ${this.bucket}`);
-      }
-    } catch (err) {
-      logger.warn(`Bucket check failed: ${err.message}`);
+    if (s3Config.endpoint) {
+      clientOptions.endpoint = s3Config.endpoint;
+      clientOptions.forcePathStyle = s3Config.forcePathStyle !== false;
     }
+
+    this.client = new S3Client(clientOptions);
+    this.bucket = s3Config.bucket;
+    logger.info(`Storage: ${this.provider} (${this.bucket || 'no bucket configured'})`);
   }
 
   generateKey(filename, category) {
@@ -78,10 +45,7 @@ class StorageService {
   }
 
   storageProviderLabel() {
-    if (this.provider === 'local') return 'local';
-    if (this.provider === 'minio') return 'minio';
-    if (this.provider === 's3_compatible') return 's3';
-    return 's3';
+    return this.provider === 'local' ? 'local' : 's3';
   }
 
   async upload(file, category = 'other') {
@@ -98,35 +62,29 @@ class StorageService {
       };
     }
 
-    if (this.provider === 'minio') {
-      await this.client.putObject(this.bucket, key, file.buffer, file.size, {
-        'Content-Type': file.mimetype,
-      });
-    } else {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucket,
-          Key: key,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        })
-      );
+    if (!this.bucket || !this.client) {
+      throw new Error('Cloud storage is not configured. Set S3_* env vars or use STORAGE_PROVIDER=local');
     }
+
+    await this.client.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      })
+    );
 
     return {
       storageKey: key,
-      storageProvider: this.storageProviderLabel(),
+      storageProvider: 's3',
       bucket: this.bucket,
     };
   }
 
   async getSignedUrl(key, expirySeconds = 3600) {
-    if (this.provider === 'local') {
-      return null;
-    }
-    if (this.provider === 'minio') {
-      return this.client.presignedGetObject(this.bucket, key, expirySeconds);
-    }
+    if (this.provider === 'local') return null;
+
     return getSignedUrl(
       this.client,
       new GetObjectCommand({ Bucket: this.bucket, Key: key }),
@@ -144,11 +102,8 @@ class StorageService {
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       return;
     }
-    if (this.provider === 'minio') {
-      await this.client.removeObject(this.bucket, key);
-    } else {
-      await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
-    }
+
+    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
   }
 }
 

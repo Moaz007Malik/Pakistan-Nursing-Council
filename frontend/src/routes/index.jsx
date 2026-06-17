@@ -15,6 +15,7 @@ import InstitutionApplicationsPage from '../pages/institutions/InstitutionApplic
 import StudentsPage from '../pages/students/StudentsPage';
 import StudentRegistrationPage from '../pages/students/StudentRegistrationPage';
 import FacultyPage from '../pages/faculty/FacultyPage';
+import FacultyRegistrationPage from '../pages/faculty/FacultyRegistrationPage';
 import AttendancePage from '../pages/attendance/AttendancePage';
 import InspectionsPage from '../pages/inspections/InspectionsPage';
 import PaymentsPage from '../pages/payments/PaymentsPage';
@@ -60,6 +61,7 @@ export default function AppRoutes() {
         <Route path="students" element={<StudentsPage />} />
         <Route path="students/register" element={<StudentRegistrationPage />} />
         <Route path="faculty" element={<FacultyPage />} />
+        <Route path="faculty/register" element={<FacultyRegistrationPage />} />
         <Route path="attendance" element={<AttendancePage />} />
         <Route path="inspections" element={<InspectionsPage />} />
         <Route path="payments" element={<PaymentsPage />} />

@@ -2,6 +2,7 @@ const {
   Institution, InstitutionApplication, Student, Faculty, Payment, Renewal,
   FieldInspection, Notification, AuditLog, StudentAttendance,
 } = require('../models');
+const { ROLES } = require('../config/constants');
 const asyncHandler = require('../utils/asyncHandler');
 
 exports.getAdminDashboard = asyncHandler(async (req, res) => {
@@ -45,7 +46,8 @@ exports.getAdminDashboard = asyncHandler(async (req, res) => {
 });
 
 exports.getFieldOfficerDashboard = asyncHandler(async (req, res) => {
-  const inspections = await FieldInspection.find({ fieldOfficer: req.user._id })
+  const filter = req.user.role === ROLES.SUPER_ADMIN ? {} : { fieldOfficer: req.user._id };
+  const inspections = await FieldInspection.find(filter)
     .populate('institution', 'name institutionType')
     .sort({ createdAt: -1 });
 
@@ -61,6 +63,26 @@ exports.getFieldOfficerDashboard = asyncHandler(async (req, res) => {
 
 exports.getInstitutionDashboard = asyncHandler(async (req, res) => {
   const institutionId = req.user.institution;
+
+  if (!institutionId && req.user.role === ROLES.SUPER_ADMIN) {
+    const [students, faculty, renewals] = await Promise.all([
+      Student.countDocuments({ status: 'active' }),
+      Faculty.countDocuments({ status: 'active' }),
+      Renewal.countDocuments({ status: 'pending' }),
+    ]);
+    return res.json({
+      success: true,
+      data: { stats: { students, faculty, pendingRenewals: renewals } },
+    });
+  }
+
+  if (!institutionId) {
+    return res.json({
+      success: true,
+      data: { stats: { students: 0, faculty: 0, pendingRenewals: 0 } },
+    });
+  }
+
   const [students, faculty, renewals, attendance] = await Promise.all([
     Student.countDocuments({ institution: institutionId }),
     Faculty.countDocuments({ institution: institutionId }),
@@ -157,6 +179,12 @@ exports.markNotificationRead = asyncHandler(async (req, res) => {
     { new: true }
   );
   res.json({ success: true, data: notification });
+});
+
+exports.deleteNotification = asyncHandler(async (req, res) => {
+  const notification = await Notification.findByIdAndDelete(req.params.id);
+  if (!notification) throw new ApiError(404, 'Notification not found');
+  res.json({ success: true, message: 'Notification deleted' });
 });
 
 exports.getAuditLogs = asyncHandler(async (req, res) => {

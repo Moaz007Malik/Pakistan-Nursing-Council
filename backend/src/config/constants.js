@@ -24,22 +24,29 @@ const PERMISSIONS = {
   INSTITUTIONS_UPDATE: 'institutions:update',
   INSTITUTIONS_APPROVE: 'institutions:approve',
   INSTITUTIONS_SUSPEND: 'institutions:suspend',
+  INSTITUTIONS_DELETE: 'institutions:delete',
+  APPLICATIONS_DELETE: 'applications:delete',
 
   // Affidavits
   AFFIDAVITS_READ: 'affidavits:read',
   AFFIDAVITS_CREATE: 'affidavits:create',
+  AFFIDAVITS_UPDATE: 'affidavits:update',
   AFFIDAVITS_VERIFY: 'affidavits:verify',
   AFFIDAVITS_APPROVE: 'affidavits:approve',
+  AFFIDAVITS_DELETE: 'affidavits:delete',
 
   // Field Inspections
   INSPECTIONS_READ: 'inspections:read',
   INSPECTIONS_CREATE: 'inspections:create',
+  INSPECTIONS_UPDATE: 'inspections:update',
   INSPECTIONS_SUBMIT: 'inspections:submit',
   INSPECTIONS_ASSIGN: 'inspections:assign',
+  INSPECTIONS_DELETE: 'inspections:delete',
 
   // Committees
   COMMITTEES_READ: 'committees:read',
   COMMITTEES_MANAGE: 'committees:manage',
+  COMMITTEES_DELETE: 'committees:delete',
   COMMITTEES_VOTE: 'committees:vote',
   COMMITTEES_REVIEW: 'committees:review',
 
@@ -47,6 +54,7 @@ const PERMISSIONS = {
   COUNCIL_READ: 'council:read',
   COUNCIL_APPROVE: 'council:approve',
   COUNCIL_RESOLUTION: 'council:resolution',
+  COUNCIL_DELETE: 'council:delete',
 
   // Students
   STUDENTS_READ: 'students:read',
@@ -54,6 +62,7 @@ const PERMISSIONS = {
   STUDENTS_UPDATE: 'students:update',
   STUDENTS_APPROVE: 'students:approve',
   STUDENTS_RENEW: 'students:renew',
+  STUDENTS_DELETE: 'students:delete',
 
   // Faculty
   FACULTY_READ: 'faculty:read',
@@ -61,6 +70,7 @@ const PERMISSIONS = {
   FACULTY_UPDATE: 'faculty:update',
   FACULTY_APPROVE: 'faculty:approve',
   FACULTY_RENEW: 'faculty:renew',
+  FACULTY_DELETE: 'faculty:delete',
 
   // Attendance
   ATTENDANCE_READ: 'attendance:read',
@@ -70,21 +80,25 @@ const PERMISSIONS = {
   // Biometric
   BIOMETRIC_READ: 'biometric:read',
   BIOMETRIC_MANAGE: 'biometric:manage',
+  BIOMETRIC_DELETE: 'biometric:delete',
 
   // Monitoring
   MONITORING_READ: 'monitoring:read',
   MONITORING_STREAM: 'monitoring:stream',
   MONITORING_CAPTURE: 'monitoring:capture',
+  MONITORING_DELETE: 'monitoring:delete',
 
   // Payments
   PAYMENTS_READ: 'payments:read',
   PAYMENTS_CREATE: 'payments:create',
   PAYMENTS_VERIFY: 'payments:verify',
   PAYMENTS_REFUND: 'payments:refund',
+  RENEWALS_DELETE: 'renewals:delete',
 
   // Notifications
   NOTIFICATIONS_READ: 'notifications:read',
   NOTIFICATIONS_SEND: 'notifications:send',
+  NOTIFICATIONS_DELETE: 'notifications:delete',
 
   // Audit
   AUDIT_READ: 'audit:read',

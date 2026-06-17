@@ -43,6 +43,18 @@ exports.updateAffidavitStatus = asyncHandler(async (req, res) => {
   res.json({ success: true, data: affidavit });
 });
 
+exports.updateAffidavit = asyncHandler(async (req, res) => {
+  const affidavit = await Affidavit.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!affidavit) throw new ApiError(404, 'Affidavit not found');
+  res.json({ success: true, data: affidavit });
+});
+
+exports.deleteAffidavit = asyncHandler(async (req, res) => {
+  const affidavit = await Affidavit.findByIdAndDelete(req.params.id);
+  if (!affidavit) throw new ApiError(404, 'Affidavit not found');
+  res.json({ success: true, message: 'Affidavit deleted' });
+});
+
 // Field Inspections
 exports.createInspection = asyncHandler(async (req, res) => {
   const inspection = await FieldInspection.create({
@@ -82,9 +94,16 @@ exports.updateInspection = asyncHandler(async (req, res) => {
   res.json({ success: true, data: inspection });
 });
 
+exports.deleteInspection = asyncHandler(async (req, res) => {
+  const inspection = await FieldInspection.findByIdAndDelete(req.params.id);
+  if (!inspection) throw new ApiError(404, 'Inspection not found');
+  res.json({ success: true, message: 'Inspection deleted' });
+});
+
 // Committees
 exports.getCommittees = asyncHandler(async (req, res) => {
-  const committees = await Committee.find({ isActive: true })
+  const filter = req.query.all === 'true' ? {} : { isActive: true };
+  const committees = await Committee.find(filter)
     .populate('chairperson', 'firstName lastName')
     .populate('members', 'firstName lastName');
   res.json({ success: true, data: committees });
@@ -93,6 +112,18 @@ exports.getCommittees = asyncHandler(async (req, res) => {
 exports.createCommittee = asyncHandler(async (req, res) => {
   const committee = await Committee.create(req.body);
   res.status(201).json({ success: true, data: committee });
+});
+
+exports.updateCommittee = asyncHandler(async (req, res) => {
+  const committee = await Committee.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!committee) throw new ApiError(404, 'Committee not found');
+  res.json({ success: true, data: committee });
+});
+
+exports.deleteCommittee = asyncHandler(async (req, res) => {
+  const committee = await Committee.findByIdAndDelete(req.params.id);
+  if (!committee) throw new ApiError(404, 'Committee not found');
+  res.json({ success: true, message: 'Committee deleted' });
 });
 
 exports.scheduleMeeting = asyncHandler(async (req, res) => {
@@ -132,6 +163,18 @@ exports.createCouncilMeeting = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: meeting });
 });
 
+exports.updateCouncilMeeting = asyncHandler(async (req, res) => {
+  const meeting = await CouncilMeeting.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!meeting) throw new ApiError(404, 'Council meeting not found');
+  res.json({ success: true, data: meeting });
+});
+
+exports.deleteCouncilMeeting = asyncHandler(async (req, res) => {
+  const meeting = await CouncilMeeting.findByIdAndDelete(req.params.id);
+  if (!meeting) throw new ApiError(404, 'Council meeting not found');
+  res.json({ success: true, message: 'Council meeting deleted' });
+});
+
 exports.addResolution = asyncHandler(async (req, res) => {
   const count = await CouncilMeeting.aggregate([
     { $unwind: '$resolutions' },
@@ -157,6 +200,18 @@ exports.getDevices = asyncHandler(async (req, res) => {
 exports.registerDevice = asyncHandler(async (req, res) => {
   const device = await BiometricDevice.create(req.body);
   res.status(201).json({ success: true, data: device });
+});
+
+exports.updateDevice = asyncHandler(async (req, res) => {
+  const device = await BiometricDevice.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!device) throw new ApiError(404, 'Device not found');
+  res.json({ success: true, data: device });
+});
+
+exports.deleteDevice = asyncHandler(async (req, res) => {
+  const device = await BiometricDevice.findByIdAndDelete(req.params.id);
+  if (!device) throw new ApiError(404, 'Device not found');
+  res.json({ success: true, message: 'Device deleted' });
 });
 
 exports.syncDevice = asyncHandler(async (req, res) => {
@@ -193,6 +248,18 @@ exports.getCameraStreams = asyncHandler(async (req, res) => {
 exports.createCameraStream = asyncHandler(async (req, res) => {
   const stream = await CameraStream.create(req.body);
   res.status(201).json({ success: true, data: stream });
+});
+
+exports.updateCameraStream = asyncHandler(async (req, res) => {
+  const stream = await CameraStream.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!stream) throw new ApiError(404, 'Camera stream not found');
+  res.json({ success: true, data: stream });
+});
+
+exports.deleteCameraStream = asyncHandler(async (req, res) => {
+  const stream = await CameraStream.findByIdAndDelete(req.params.id);
+  if (!stream) throw new ApiError(404, 'Camera stream not found');
+  res.json({ success: true, message: 'Camera stream deleted' });
 });
 
 exports.captureSnapshot = asyncHandler(async (req, res) => {

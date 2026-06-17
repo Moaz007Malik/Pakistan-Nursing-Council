@@ -70,3 +70,9 @@ exports.approveRenewal = asyncHandler(async (req, res) => {
 
   res.json({ success: true, data: renewal });
 });
+
+exports.deleteRenewal = asyncHandler(async (req, res) => {
+  const renewal = await Renewal.findByIdAndDelete(req.params.id);
+  if (!renewal) throw new ApiError(404, 'Renewal not found');
+  res.json({ success: true, message: 'Renewal deleted' });
+});

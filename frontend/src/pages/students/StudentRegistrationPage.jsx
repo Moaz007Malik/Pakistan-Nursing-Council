@@ -10,6 +10,8 @@ export default function StudentRegistrationPage() {
 
   const mutation = useMutation({
     mutationFn: (data) => api.post('/students', {
+      loginEmail: data.loginEmail,
+      loginPassword: data.loginPassword,
       personalInfo: {
         fullName: data.fullName,
         fatherHusbandName: data.fatherHusbandName,
@@ -19,6 +21,7 @@ export default function StudentRegistrationPage() {
         address: data.address,
         nationality: data.nationality || 'Pakistani',
         gender: data.gender,
+        email: data.loginEmail,
       },
       academicInfo: {
         matric: { board: data.matricBoard, year: Number(data.matricYear), marks: Number(data.matricMarks), totalMarks: 1100, percentage: Number(data.matricPercentage) },
@@ -76,6 +79,35 @@ export default function StudentRegistrationPage() {
             <Grid item xs={12} md={4}><TextField fullWidth label="Session" placeholder="2024-2028" {...register('session')} /></Grid>
             <Grid item xs={12} md={4}><TextField fullWidth label="Semester" type="number" {...register('semester')} defaultValue={1} /></Grid>
             <Grid item xs={12} md={4}><TextField fullWidth label="Batch" {...register('batch')} /></Grid>
+          </Grid>
+        </CardContent></Card>
+
+        <Card sx={{ mb: 3 }}><CardContent>
+          <Typography variant="h6" gutterBottom>Portal Login Credentials</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            The student will use these credentials to sign in to the student portal.
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Login Email"
+                type="email"
+                placeholder="student@pnmc.com"
+                {...register('loginEmail', { required: true })}
+                error={!!errors.loginEmail}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                helperText="Minimum 8 characters"
+                {...register('loginPassword', { required: true, minLength: 8 })}
+                error={!!errors.loginPassword}
+              />
+            </Grid>
           </Grid>
         </CardContent></Card>
 

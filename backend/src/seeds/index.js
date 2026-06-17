@@ -3,18 +3,18 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const mongoose = require('mongoose');
 const connectDB = require('../config/database');
 const {
-  User, Institution, Committee, Student, Faculty, BiometricDevice, CameraStream,
+  User, Institution, InstitutionApplication, Committee, Student, Faculty, BiometricDevice, CameraStream,
 } = require('../models');
 const { ROLES, COMMITTEE_TYPES } = require('../config/constants');
 const logger = require('../utils/logger');
 
 const seedUsers = [
-  { email: 'admin@pnmc.gov.pk', password: 'Admin@123', firstName: 'Super', lastName: 'Admin', role: ROLES.SUPER_ADMIN },
-  { email: 'council@pnmc.gov.pk', password: 'Council@123', firstName: 'Council', lastName: 'Member', role: ROLES.COUNCIL_MEMBER },
-  { email: 'committee@pnmc.gov.pk', password: 'Committee@123', firstName: 'Committee', lastName: 'Member', role: ROLES.COMMITTEE_MEMBER },
-  { email: 'field@pnmc.gov.pk', password: 'Field@123', firstName: 'Field', lastName: 'Officer', role: ROLES.FIELD_OFFICER },
-  { email: 'finance@pnmc.gov.pk', password: 'Finance@123', firstName: 'Finance', lastName: 'Officer', role: ROLES.FINANCE_OFFICER },
-  { email: 'monitoring@pnmc.gov.pk', password: 'Monitor@123', firstName: 'Monitoring', lastName: 'Officer', role: ROLES.MONITORING_OFFICER },
+  { email: 'admin@pnmc.com', password: 'Admin@123', firstName: 'Super', lastName: 'Admin', role: ROLES.SUPER_ADMIN },
+  { email: 'council@pnmc.com', password: 'Council@123', firstName: 'Council', lastName: 'Member', role: ROLES.COUNCIL_MEMBER },
+  { email: 'committee@pnmc.com', password: 'Committee@123', firstName: 'Committee', lastName: 'Member', role: ROLES.COMMITTEE_MEMBER },
+  { email: 'field@pnmc.com', password: 'Field@123', firstName: 'Field', lastName: 'Officer', role: ROLES.FIELD_OFFICER },
+  { email: 'finance@pnmc.com', password: 'Finance@123', firstName: 'Finance', lastName: 'Officer', role: ROLES.FINANCE_OFFICER },
+  { email: 'monitoring@pnmc.com', password: 'Monitor@123', firstName: 'Monitoring', lastName: 'Officer', role: ROLES.MONITORING_OFFICER },
 ];
 
 const seed = async () => {
@@ -25,6 +25,7 @@ const seed = async () => {
     await Promise.all([
       User.deleteMany({}),
       Institution.deleteMany({}),
+      InstitutionApplication.deleteMany({}),
       Committee.deleteMany({}),
       Student.deleteMany({}),
       Faculty.deleteMany({}),
@@ -38,7 +39,7 @@ const seed = async () => {
     const institution = await Institution.create({
       name: 'Pakistan Institute of Nursing Sciences',
       institutionType: 'college_of_nursing',
-      email: 'info@pins.edu.pk',
+      email: 'info@pnmc.com',
       phone: '+92-300-1234567',
       address: { city: 'Islamabad', province: 'ICT', country: 'Pakistan' },
       principalName: 'Dr. Sarah Ahmed',
@@ -51,7 +52,7 @@ const seed = async () => {
     });
 
     await User.create({
-      email: 'institution@pins.edu.pk',
+      email: 'institution@pnmc.com',
       password: 'Inst@123',
       firstName: 'Institution',
       lastName: 'Admin',
@@ -59,8 +60,22 @@ const seed = async () => {
       institution: institution._id,
     });
 
+    const instAdmin = await User.findOne({ email: 'institution@pnmc.com' });
+
+    await InstitutionApplication.create({
+      institution: institution._id,
+      submittedBy: instAdmin._id,
+      status: 'committee_review',
+      workflow: [
+        { step: 'institution_submission', status: 'completed', completedAt: new Date() },
+        { step: 'field_inspection', status: 'completed', completedAt: new Date() },
+        { step: 'committee_review', status: 'in_progress' },
+        { step: 'council_review', status: 'pending' },
+      ],
+    });
+
     await User.create({
-      email: 'principal@pins.edu.pk',
+      email: 'principal@pnmc.com',
       password: 'Principal@123',
       firstName: 'Dr. Sarah',
       lastName: 'Ahmed',
@@ -79,7 +94,7 @@ const seed = async () => {
     }
 
     const studentUser = await User.create({
-      email: 'student@pins.edu.pk',
+      email: 'student@pnmc.com',
       password: 'Student@123',
       firstName: 'Ayesha',
       lastName: 'Khan',
@@ -118,7 +133,7 @@ const seed = async () => {
     });
 
     const facultyUser = await User.create({
-      email: 'faculty@pins.edu.pk',
+      email: 'faculty@pnmc.com',
       password: 'Faculty@123',
       firstName: 'Dr. Hassan',
       lastName: 'Raza',
@@ -134,7 +149,7 @@ const seed = async () => {
         fullName: 'Dr. Hassan Raza',
         cnic: '35202-7654321-9',
         contact: '+92-300-5551234',
-        email: 'faculty@pins.edu.pk',
+        email: 'faculty@pnmc.com',
       },
       professionalInfo: {
         qualification: 'PhD Nursing',
@@ -172,9 +187,9 @@ const seed = async () => {
     logger.info('Seed completed successfully!');
     logger.info('--- Default Credentials ---');
     seedUsers.forEach((u) => logger.info(`${u.role}: ${u.email} / ${u.password}`));
-    logger.info(`institution_admin: institution@pins.edu.pk / Inst@123`);
-    logger.info(`student: student@pins.edu.pk / Student@123`);
-    logger.info(`faculty: faculty@pins.edu.pk / Faculty@123`);
+    logger.info(`institution_admin: institution@pnmc.com / Inst@123`);
+    logger.info(`student: student@pnmc.com / Student@123`);
+    logger.info(`faculty: faculty@pnmc.com / Faculty@123`);
 
     await mongoose.disconnect();
     process.exit(0);

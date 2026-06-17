@@ -4,7 +4,7 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 module.exports = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT, 10) || 5000,
-  mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/pnmc',
+  mongodbUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/pnmc',
   jwt: {
     secret: process.env.JWT_SECRET || 'dev-secret',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
@@ -12,20 +12,11 @@ module.exports = {
     refreshExpire: process.env.JWT_REFRESH_EXPIRE || '7d',
   },
   storage: {
-    // local = disk folder (dev/Docker only) | minio = self-hosted S3-compatible (docker-compose)
-    // s3_compatible = any S3 API (Cloudflare R2, B2, DO Spaces, hosted MinIO) — no AWS account required
-    // s3 = AWS S3
-    provider: process.env.STORAGE_PROVIDER || 'minio',
+    // local = disk (npm run dev) | s3_compatible = Cloudflare R2, B2, etc. | s3 = AWS S3
+    provider: process.env.STORAGE_PROVIDER
+      || (process.env.VERCEL ? 's3_compatible' : 'local'),
     local: {
       uploadDir: process.env.LOCAL_STORAGE_PATH || 'uploads',
-    },
-    minio: {
-      endPoint: process.env.MINIO_ENDPOINT || 'localhost',
-      port: parseInt(process.env.MINIO_PORT, 10) || 9000,
-      useSSL: process.env.MINIO_USE_SSL === 'true',
-      accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
-      secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
-      bucket: process.env.MINIO_BUCKET || 'pnmc-documents',
     },
     s3Compatible: {
       endpoint: process.env.S3_ENDPOINT,
@@ -42,12 +33,7 @@ module.exports = {
       bucket: process.env.AWS_S3_BUCKET,
     },
   },
-  redis: {
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
-  },
   payment: {
-    // false = payments auto-complete (bypass gateways, for dev/staging)
-    // true = real Stripe / Easypaisa / JazzCash must be configured
     enabled: process.env.PAYMENTS_ENABLED === 'true',
     stripe: {
       secretKey: process.env.STRIPE_SECRET_KEY,

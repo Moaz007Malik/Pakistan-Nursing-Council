@@ -36,6 +36,7 @@ const studentSchema = new mongoose.Schema(
       cnic: { type: String, required: true, unique: true },
       dateOfBirth: Date,
       contact: String,
+      email: String,
       address: String,
       nationality: { type: String, default: 'Pakistani' },
       gender: { type: String, enum: ['male', 'female', 'other'] },

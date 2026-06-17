@@ -60,3 +60,16 @@ export const getDashboardRoute = (role) => {
   };
   return routes[role] || '/dashboard';
 };
+
+export const canRegisterStudents = (role) => [
+  ROLES.SUPER_ADMIN,
+  ROLES.INSTITUTION_ADMIN,
+  ROLES.PRINCIPAL,
+  ROLES.FACULTY,
+].includes(role);
+
+export const canRegisterFaculty = (role) => [
+  ROLES.SUPER_ADMIN,
+  ROLES.INSTITUTION_ADMIN,
+  ROLES.PRINCIPAL,
+].includes(role);

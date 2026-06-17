@@ -10,7 +10,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
   const { register, handleSubmit } = useForm({
-    defaultValues: { email: 'admin@pnmc.gov.pk', password: 'Admin@123' },
+    defaultValues: { email: 'admin@pnmc.com', password: 'Admin@123' },
   });
 
   const onSubmit = async (data) => {
@@ -40,7 +40,7 @@ export default function LoginPage() {
           </form>
 
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
-            Demo: admin@pnmc.gov.pk / Admin@123
+            Demo: admin@pnmc.com / Admin@123
           </Typography>
         </CardContent>
       </Card>

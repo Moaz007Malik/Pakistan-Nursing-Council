@@ -42,6 +42,12 @@ exports.updateInstitution = asyncHandler(async (req, res) => {
   res.json({ success: true, data: institution });
 });
 
+exports.deleteInstitution = asyncHandler(async (req, res) => {
+  const institution = await Institution.findByIdAndDelete(req.params.id);
+  if (!institution) throw new ApiError(404, 'Institution not found');
+  res.json({ success: true, message: 'Institution deleted' });
+});
+
 exports.createApplication = asyncHandler(async (req, res) => {
   const application = await InstitutionApplication.create({
     ...req.body,
@@ -77,6 +83,18 @@ exports.getApplication = asyncHandler(async (req, res) => {
     .populate('submittedBy', 'firstName lastName email');
   if (!application) throw new ApiError(404, 'Application not found');
   res.json({ success: true, data: application });
+});
+
+exports.updateApplication = asyncHandler(async (req, res) => {
+  const application = await InstitutionApplication.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!application) throw new ApiError(404, 'Application not found');
+  res.json({ success: true, data: application });
+});
+
+exports.deleteApplication = asyncHandler(async (req, res) => {
+  const application = await InstitutionApplication.findByIdAndDelete(req.params.id);
+  if (!application) throw new ApiError(404, 'Application not found');
+  res.json({ success: true, message: 'Application deleted' });
 });
 
 exports.submitApplication = asyncHandler(async (req, res) => {

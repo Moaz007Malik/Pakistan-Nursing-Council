@@ -8,7 +8,7 @@ const options = {
       title: 'PNMC Management System API',
       version: '1.0.0',
       description: 'Nursing & Midwifery Council Management System REST API',
-      contact: { name: 'PNMC Support', email: 'support@pnmc.gov.pk' },
+      contact: { name: 'PNMC Support', email: 'support@pnmc.com' },
     },
     servers: [
       { url: `http://localhost:${config.port}/api/v1`, description: 'Development' },
