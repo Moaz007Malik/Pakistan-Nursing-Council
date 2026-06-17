@@ -1,55 +1,16 @@
-import { useEffect, useState, useCallback } from 'react';
-import { getSocket } from '../services/socket';
+import { useState } from 'react';
 
-export function useRealtime(event, handler, deps = []) {
-  const stableHandler = useCallback(handler, deps);
+/** No-op stubs — real-time socket support removed; pages use polling instead. */
+export function useRealtime() {}
 
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket || !event) return undefined;
+export function useMonitoringRoom() {}
 
-    socket.on(event, stableHandler);
-    return () => socket.off(event, stableHandler);
-  }, [event, stableHandler]);
-}
+export function useInstitutionRoom() {}
 
-export function useMonitoringRoom() {
-  useEffect(() => {
-    const socket = getSocket();
-    if (socket) socket.emit('join:monitoring');
-  }, []);
-}
-
-export function useInstitutionRoom(institutionId) {
-  useEffect(() => {
-    const socket = getSocket();
-    if (socket && institutionId) {
-      socket.emit('join:institution', institutionId);
-    }
-  }, [institutionId]);
-}
-
-export function useStreamRoom(streamId) {
-  useEffect(() => {
-    const socket = getSocket();
-    if (socket && streamId) {
-      socket.emit('join:stream', streamId);
-    }
-    return () => {
-      if (socket && streamId) socket.emit('leave:stream', streamId);
-    };
-  }, [streamId]);
-}
+export function useStreamRoom() {}
 
 export function useAttendanceFeed(onUpdate) {
-  const [events, setEvents] = useState([]);
-
-  useRealtime('attendance:update', (data) => {
-    setEvents((prev) => [data, ...prev].slice(0, 50));
-    onUpdate?.(data);
-  }, [onUpdate]);
-
-  return events;
+  return [];
 }
 
 export default useRealtime;

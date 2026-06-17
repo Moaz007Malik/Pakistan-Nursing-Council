@@ -9,4 +9,3 @@ coverage/
 .vscode/
 .idea/
 uploads/
-docker/nginx/ssl/*.pem

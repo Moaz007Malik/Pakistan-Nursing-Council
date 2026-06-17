@@ -6,10 +6,10 @@ Enterprise-grade Nursing & Midwifery Council Management System built with the ME
 
 | Layer | Technologies |
 |-------|-------------|
-| Frontend | React, Redux Toolkit, Material UI, React Query, React Hook Form, Socket.io, Chart.js, React Router |
-| Backend | Node.js, Express, MongoDB, Mongoose, Socket.io, JWT, RBAC |
+| Frontend | React, Redux Toolkit, Material UI, React Query, React Hook Form, Chart.js, React Router |
+| Backend | Node.js, Express, MongoDB, Mongoose, JWT, RBAC |
 | Storage | Local disk (dev) or Cloudinary (production) |
-| Deployment | Vercel (frontend), Render or Docker (API) |
+| Deployment | Vercel (frontend), Render (API) |
 
 ## Modules
 
@@ -24,7 +24,7 @@ Enterprise-grade Nursing & Midwifery Council Management System built with the ME
 9. **Faculty Management** — Registration, documents, council approval
 10. **Faculty Attendance** — Daily logs, late arrival, overtime
 11. **Biometric Integration** — ZKTeco, eSSL, Suprema adapters
-12. **Real-Time Monitoring** — Camera streams, snapshots, Socket.io events
+12. **Real-Time Monitoring** — Camera streams and snapshots
 13. **Payment Module** — Stripe, Easypaisa, JazzCash abstraction
 14. **Notification System** — Email, SMS, WhatsApp, In-App
 15. **Audit System** — Full action tracking with IP logging
@@ -33,7 +33,7 @@ Enterprise-grade Nursing & Midwifery Council Management System built with the ME
 
 ### Prerequisites
 - Node.js 20+
-- MongoDB (local install, [MongoDB Atlas](https://www.mongodb.com/atlas), or optional Docker)
+- MongoDB ([MongoDB Atlas](https://www.mongodb.com/atlas) recommended, or local install)
 
 ### Local Development
 
@@ -46,27 +46,8 @@ npm run dev
 
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000
-- Swagger: http://localhost:5000/api/docs
 
 Files are uploaded to **Cloudinary** by default. Set `STORAGE_PROVIDER=cloudinary` and your Cloudinary credentials in `backend/.env` (see `backend/.env.example`). Use `STORAGE_PROVIDER=local` only for offline dev without cloud storage.
-
-### Optional: MongoDB via Docker
-
-```bash
-docker compose up -d mongodb
-# Then use in backend/.env:
-# MONGODB_URI=mongodb://admin:changeme@localhost:27017/pnmc?authSource=admin
-```
-
-### Optional: Full stack via Docker (API + frontend + MongoDB)
-
-```bash
-docker compose up -d --build
-```
-
-- Frontend: http://localhost:3000 (nginx proxies `/api` to the Express server)
-- API: http://localhost:5000
-- Swagger: http://localhost:5000/api/docs
 
 ## Production deployment
 
@@ -107,15 +88,12 @@ MONGODB_URI="your-atlas-uri" npm run seed --prefix backend
 | Variable | Example |
 |----------|---------|
 | `VITE_API_URL` | `https://pnmc-api.onrender.com/api` |
-| `VITE_SOCKET_URL` | `https://pnmc-api.onrender.com` |
 
 3. Redeploy the frontend after the API URL is live.
 
 **Storage:** Use **Cloudinary** (`STORAGE_PROVIDER=cloudinary`) for documents and inspection media.
 
 **Payments:** `PAYMENTS_ENABLED=false` auto-passes all payments (good for staging).
-
-- Swagger docs: `https://your-api.onrender.com/api/docs`
 
 ## Default Credentials (after seed)
 
@@ -137,28 +115,24 @@ MONGODB_URI="your-atlas-uri" npm run seed --prefix backend
 PNC/
 ├── backend/
 │   ├── src/
-│   │   ├── config/          # App config, constants, swagger, database
+│   │   ├── config/          # App config, constants, database
 │   │   ├── controllers/     # Route handlers
 │   │   ├── middleware/      # Auth, RBAC, audit, rate limiting
 │   │   ├── models/          # MongoDB schemas (20 models)
 │   │   ├── routes/          # API routes
 │   │   ├── services/        # Business logic (auth, payment, biometric, etc.)
-│   │   ├── socket/          # Socket.io real-time events
 │   │   ├── seeds/           # Database seed data
 │   │   └── utils/           # Helpers
-│   └── Dockerfile
 ├── frontend/
 │   ├── src/
 │   │   ├── components/      # Reusable UI components
 │   │   ├── features/        # Redux slices
 │   │   ├── pages/           # Module pages & dashboards
 │   │   ├── routes/          # React Router config
-│   │   └── services/        # API & Socket clients
-│   └── Dockerfile
-├── docker/                  # Nginx config
+│   │   └── services/        # API clients
 ├── docs/                    # RBAC matrix, documentation
 ├── data/                    # Reference PDF forms
-└── docker-compose.yml
+└── render.yaml              # Render deployment blueprint
 ```
 
 ## API Overview

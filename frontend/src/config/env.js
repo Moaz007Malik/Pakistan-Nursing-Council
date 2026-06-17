@@ -9,7 +9,7 @@ export const API_BASE_URL = trimSlash(rawApiUrl);
 
 /**
  * Backend server origin (protocol + host).
- * Used for sockets, document URLs, and refresh-token calls when API is on another host.
+ * Used for document URLs when API is on another host.
  */
 export const getApiOrigin = () => {
   if (isAbsoluteUrl(API_BASE_URL)) {
@@ -25,16 +25,6 @@ export const getApiOrigin = () => {
   }
 
   return '';
-};
-
-/**
- * Socket.IO server URL.
- * Set VITE_SOCKET_URL in production when frontend and backend are on different hosts.
- */
-export const getSocketUrl = () => {
-  const explicit = import.meta.env.VITE_SOCKET_URL?.trim();
-  if (explicit) return trimSlash(explicit);
-  return getApiOrigin();
 };
 
 export const APP_NAME = import.meta.env.VITE_APP_NAME || 'PNMC Management System';

@@ -17,13 +17,6 @@ export default defineConfig(({ mode }) => {
             proxy.on('error', () => {});
           },
         },
-        '/socket.io': {
-          target: devApiProxy,
-          ws: true,
-          configure: (proxy) => {
-            proxy.on('error', () => {});
-          },
-        },
       },
     },
     build: {

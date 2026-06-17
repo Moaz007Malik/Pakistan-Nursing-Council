@@ -283,29 +283,6 @@ exports.mapBiometricUser = asyncHandler(async (req, res) => {
 
 exports.receiveBiometricEvent = asyncHandler(async (req, res) => {
   const event = await biometricService.receiveRealtimeEvent(req.params.deviceId, req.body);
-
-  const io = req.app.get('io');
-  if (io && event) {
-    const device = await BiometricDevice.findOne({ deviceId: req.params.deviceId });
-    let name = null;
-    if (event.entityType === 'student' && event.entityId) {
-      const s = await require('../models').Student.findById(event.entityId);
-      name = s?.personalInfo?.fullName;
-    } else if (event.entityType === 'faculty' && event.entityId) {
-      const f = await require('../models').Faculty.findById(event.entityId);
-      name = f?.personalInfo?.fullName;
-    }
-    io.to(`institution:${device?.institution}`).emit('attendance:update', {
-      entityType: event.entityType,
-      entityId: event.entityId,
-      studentName: event.entityType === 'student' ? name : undefined,
-      facultyName: event.entityType === 'faculty' ? name : undefined,
-      eventType: event.eventType,
-      timestamp: event.timestamp,
-      deviceId: req.params.deviceId,
-    });
-  }
-
   res.json({ success: true, data: event });
 });
 

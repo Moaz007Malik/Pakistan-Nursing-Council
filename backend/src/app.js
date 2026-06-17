@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const errorHandler = require('./middleware/errorHandler');
+const ensureDb = require('./middleware/ensureDb');
+const connectDB = require('./config/database');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const config = require('./config');
 
@@ -57,23 +59,35 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/health', async (req, res) => {
+  const mongoose = require('mongoose');
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await connectDB();
+    } catch (error) {
+      return res.status(503).json({
+        status: 'error',
+        db: error.message,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
+  res.json({
+    status: 'ok',
+    db: states[mongoose.connection.readyState] || 'unknown',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.get('/api', (req, res) => {
   res.json({
     success: true,
     name: 'PNMC API',
-    docs: '/api/docs',
     health: '/health',
   });
-});
-
-app.use('/api/docs', (req, res, next) => {
-  const swaggerUi = require('swagger-ui-express');
-  const swaggerSpec = require('./config/swagger');
-  return swaggerUi.serve(req, res, () => swaggerUi.setup(swaggerSpec)(req, res, next));
 });
 
 let apiRouter;
@@ -89,6 +103,7 @@ const getApiRouter = () => {
   return apiRouter;
 };
 
+app.use('/api', ensureDb);
 app.use('/api', (req, res, next) => getApiRouter()(req, res, next));
 
 app.use((req, res) => {

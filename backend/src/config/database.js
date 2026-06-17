@@ -4,6 +4,8 @@ const {
   resolveMongoUri,
   getMongoConnectOptions,
   isSrvLookupError,
+  prefersDirectConnection,
+  isFalsy,
 } = require('./mongodbUri');
 
 const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
@@ -13,13 +15,17 @@ if (isServerless) {
 }
 
 const assertProductionMongoUri = async () => {
-  if (!isServerless) return;
+  const { uri } = await resolveMongoUri({ forceDirect: prefersDirectConnection() || isServerless });
+  const isRemote = process.env.NODE_ENV === 'production' || isServerless;
 
-  const uri = await resolveMongoUri();
-  if (uri.includes('127.0.0.1') || uri.includes('localhost')) {
+  if (isRemote && (uri.includes('127.0.0.1') || uri.includes('localhost'))) {
     throw new Error(
-      'MONGODB_URI is not set on Vercel. Add MONGODB_URI and MONGODB_URI_DIRECT in Project → Settings → Environment Variables.'
+      'MONGODB_URI is missing or points to localhost. Set MONGODB_URI and MONGODB_URI_DIRECT in your host environment variables.'
     );
+  }
+
+  if (isServerless && !process.env.MONGODB_URI_DIRECT?.trim() && !isFalsy(process.env.MONGODB_DNS_SRV)) {
+    logger.warn('Set MONGODB_URI_DIRECT on Vercel (npm run mongo:direct-uri) and MONGODB_DNS_SRV=false.');
   }
 };
 
@@ -38,20 +44,19 @@ const connectDB = async () => {
     const options = getMongoConnectOptions();
 
     const tryConnect = async (forceDirect = false) => {
-      const uri = await resolveMongoUri({ forceDirect });
-      const mode = forceDirect || uri.startsWith('mongodb://') ? 'direct' : 'srv';
-      logger.info(`MongoDB connecting (${mode} mode)...`);
+      const { uri, source, mode } = await resolveMongoUri({ forceDirect });
+      logger.info(`MongoDB connecting (${mode} mode via ${source})...`);
       return mongoose.connect(uri, options);
     };
 
     try {
-      const preferDirect = isServerless || process.env.MONGODB_DNS_SRV === 'false';
-      const conn = await tryConnect(preferDirect);
+      const useDirect = isServerless || prefersDirectConnection();
+      const conn = await tryConnect(useDirect);
 
       logger.info(`MongoDB Connected: ${conn.connection.host} (database: ${conn.connection.name})`);
       return conn;
     } catch (error) {
-      if (!isServerless && isSrvLookupError(error)) {
+      if (!isServerless && !prefersDirectConnection() && isSrvLookupError(error)) {
         logger.warn('MongoDB SRV failed — retrying with direct connection.');
         const conn = await tryConnect(true);
         logger.info(`MongoDB Connected: ${conn.connection.host} (database: ${conn.connection.name})`);
@@ -64,7 +69,7 @@ const connectDB = async () => {
         logger.error('MongoDB authentication failed. Check MONGODB_URI credentials.');
       } else if (isSrvLookupError(error)) {
         logger.error(
-          'MongoDB DNS failed on Vercel. Set MONGODB_URI_DIRECT to the Atlas standard connection string (run: npm run mongo:direct-uri).'
+          'MongoDB DNS failed. Set MONGODB_URI_DIRECT (npm run mongo:direct-uri) and MONGODB_DNS_SRV=false.'
         );
       }
 

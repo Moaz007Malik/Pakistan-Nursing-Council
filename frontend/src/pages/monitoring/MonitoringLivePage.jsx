@@ -1,19 +1,13 @@
-import { useState } from 'react';
 import {
   Box, Typography, Card, CardContent, Grid, Chip, Alert, Button, IconButton,
 } from '@mui/material';
 import { Videocam, VideocamOff, Refresh } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
-import { useMonitoringRoom, useRealtime } from '../../hooks/useRealtime';
 
 function StreamPlayer({ stream }) {
-  const [live, setLive] = useState(stream.isLive);
   const url = stream.streamUrl || stream.hlsUrl || stream.rtspUrl;
-
-  useRealtime('stream:updated', (data) => {
-    if (data.streamId === stream._id) setLive(data.isLive);
-  }, [stream._id]);
+  const live = stream.isLive;
 
   return (
     <Card>
@@ -70,13 +64,7 @@ function StreamPlayer({ stream }) {
 }
 
 export default function MonitoringLivePage() {
-  useMonitoringRoom();
   const queryClient = useQueryClient();
-  const [alerts, setAlerts] = useState([]);
-
-  useRealtime('alert:new', (data) => {
-    setAlerts((prev) => [data, ...prev].slice(0, 10));
-  }, []);
 
   const { data: streams = [], isLoading, refetch } = useQuery({
     queryKey: ['monitoring-streams'],
@@ -105,12 +93,6 @@ export default function MonitoringLivePage() {
         </Box>
         <IconButton onClick={() => refetch()}><Refresh /></IconButton>
       </Box>
-
-      {alerts.length > 0 && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          Latest alert: {alerts[0].message || JSON.stringify(alerts[0])}
-        </Alert>
-      )}
 
       {devices.length > 0 && (
         <Card sx={{ mb: 3 }}>
