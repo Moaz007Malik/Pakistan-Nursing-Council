@@ -8,7 +8,7 @@ Enterprise-grade Nursing & Midwifery Council Management System built with the ME
 |-------|-------------|
 | Frontend | React, Redux Toolkit, Material UI, React Query, React Hook Form, Socket.io, Chart.js, React Router |
 | Backend | Node.js, Express, MongoDB, Mongoose, Socket.io, JWT, RBAC |
-| Storage | Local disk (dev) or S3-compatible cloud (Vercel — e.g. Cloudflare R2) |
+| Storage | Local disk (dev) or Cloudinary (production) |
 | Deployment | Vercel (frontend), Render or Docker (API) |
 
 ## Modules
