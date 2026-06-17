@@ -3,7 +3,8 @@ import {
   Box, Typography, Card, CardContent, Button, IconButton, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, MenuItem, Alert,
 } from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
+import { Add, Edit, Delete, Visibility } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import api from '../../services/api';
@@ -37,7 +38,9 @@ export default function CrudListPage({
   listParams,
   showCreate = true,
   allowDelete = false,
+  detailPath,
 }) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useSelector((state) => state.auth);
   const isAdmin = user?.role === ROLES.SUPER_ADMIN;
@@ -121,21 +124,28 @@ export default function CrudListPage({
     }
   };
 
-  const actionColumn = canCrud ? [{
+  const actionColumn = (canCrud || detailPath) ? [{
     field: '_actions',
     headerName: 'Actions',
-    width: canEdit ? 110 : 70,
+    width: detailPath ? (canEdit ? 140 : 90) : (canEdit ? 110 : 70),
     sortable: false,
     renderCell: (p) => (
       <Box>
+        {detailPath && (
+          <IconButton size="small" onClick={() => navigate(detailPath(p.row))} aria-label="View">
+            <Visibility fontSize="small" />
+          </IconButton>
+        )}
         {canEdit && (
           <IconButton size="small" onClick={() => openEdit(p.row)} aria-label="Edit">
             <Edit fontSize="small" />
           </IconButton>
         )}
-        <IconButton size="small" color="error" onClick={() => handleDelete(p.row)} aria-label="Delete">
-          <Delete fontSize="small" />
-        </IconButton>
+        {canCrud && (
+          <IconButton size="small" color="error" onClick={() => handleDelete(p.row)} aria-label="Delete">
+            <Delete fontSize="small" />
+          </IconButton>
+        )}
       </Box>
     ),
   }] : [];

@@ -1,6 +1,6 @@
 const {
   Affidavit, FieldInspection, Committee, CouncilMeeting,
-  BiometricDevice, CameraStream, Document,
+  BiometricDevice, CameraStream, Document, InstitutionApplication,
 } = require('../models');
 const storageService = require('../services/storage.service');
 const biometricService = require('../services/biometric.service');
@@ -8,6 +8,7 @@ const { generateResolutionNumber } = require('../utils/generators');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { paginate, paginatedResponse } = require('../utils/pagination');
+const { advanceStep } = require('../utils/workflowHelpers');
 
 // Affidavits
 exports.createAffidavit = asyncHandler(async (req, res) => {
@@ -76,6 +77,15 @@ exports.getInspections = asyncHandler(async (req, res) => {
   res.json(paginatedResponse(await query, total, pagination));
 });
 
+exports.getInspection = asyncHandler(async (req, res) => {
+  const inspection = await FieldInspection.findById(req.params.id)
+    .populate('institution', 'name institutionType')
+    .populate('fieldOfficer', 'firstName lastName email')
+    .populate('application');
+  if (!inspection) throw new ApiError(404, 'Inspection not found');
+  res.json({ success: true, data: inspection });
+});
+
 exports.updateInspection = asyncHandler(async (req, res) => {
   const inspection = await FieldInspection.findById(req.params.id);
   if (!inspection) throw new ApiError(404, 'Inspection not found');
@@ -89,7 +99,19 @@ exports.updateInspection = asyncHandler(async (req, res) => {
       inspection.overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
     }
   }
-  if (req.body.status === 'submitted') inspection.submittedAt = new Date();
+  if (req.body.status === 'submitted') {
+    inspection.submittedAt = new Date();
+    inspection.visitDate = inspection.visitDate || new Date();
+
+    if (inspection.application) {
+      const application = await InstitutionApplication.findById(inspection.application);
+      if (application && application.status === 'field_inspection_pending') {
+        application.status = 'committee_review';
+        advanceStep(application.workflow, 'field_inspection', 'committee_review');
+        await application.save();
+      }
+    }
+  }
   await inspection.save();
   res.json({ success: true, data: inspection });
 });
@@ -137,13 +159,39 @@ exports.scheduleMeeting = asyncHandler(async (req, res) => {
 
 exports.committeeVote = asyncHandler(async (req, res) => {
   const { applicationId, vote, comments } = req.body;
-  const application = await require('../models').InstitutionApplication.findById(applicationId);
+  const application = await InstitutionApplication.findById(applicationId);
   if (!application) throw new ApiError(404, 'Application not found');
+  if (application.status !== 'committee_review') {
+    throw new ApiError(400, 'Application is not in committee review');
+  }
 
   application.committeeReview = application.committeeReview || { votes: [] };
-  application.committeeReview.votes.push({ member: req.user._id, vote, comments });
-  application.committeeReview.decision = vote;
-  application.committeeReview.votedAt = new Date();
+  const existing = application.committeeReview.votes.find(
+    (v) => v.member?.toString() === req.user._id.toString()
+  );
+  if (existing) {
+    existing.vote = vote;
+    existing.comments = comments;
+  } else {
+    application.committeeReview.votes.push({ member: req.user._id, vote, comments });
+  }
+
+  const votes = application.committeeReview.votes;
+  const approves = votes.filter((v) => v.vote === 'approve').length;
+  const rejects = votes.filter((v) => v.vote === 'reject').length;
+
+  if (approves > rejects && approves >= Math.ceil(votes.length / 2)) {
+    application.committeeReview.decision = 'approve';
+    application.committeeReview.votedAt = new Date();
+    application.status = 'council_review';
+    advanceStep(application.workflow, 'committee_review', 'council_review');
+  } else if (rejects > approves) {
+    application.committeeReview.decision = 'reject';
+    application.committeeReview.votedAt = new Date();
+    application.status = 'rejected';
+    application.rejectionReason = comments || 'Rejected by committee majority';
+  }
+
   await application.save();
   res.json({ success: true, data: application });
 });
@@ -235,6 +283,29 @@ exports.mapBiometricUser = asyncHandler(async (req, res) => {
 
 exports.receiveBiometricEvent = asyncHandler(async (req, res) => {
   const event = await biometricService.receiveRealtimeEvent(req.params.deviceId, req.body);
+
+  const io = req.app.get('io');
+  if (io && event) {
+    const device = await BiometricDevice.findOne({ deviceId: req.params.deviceId });
+    let name = null;
+    if (event.entityType === 'student' && event.entityId) {
+      const s = await require('../models').Student.findById(event.entityId);
+      name = s?.personalInfo?.fullName;
+    } else if (event.entityType === 'faculty' && event.entityId) {
+      const f = await require('../models').Faculty.findById(event.entityId);
+      name = f?.personalInfo?.fullName;
+    }
+    io.to(`institution:${device?.institution}`).emit('attendance:update', {
+      entityType: event.entityType,
+      entityId: event.entityId,
+      studentName: event.entityType === 'student' ? name : undefined,
+      facultyName: event.entityType === 'faculty' ? name : undefined,
+      eventType: event.eventType,
+      timestamp: event.timestamp,
+      deviceId: req.params.deviceId,
+    });
+  }
+
   res.json({ success: true, data: event });
 });
 
@@ -281,10 +352,22 @@ exports.captureSnapshot = asyncHandler(async (req, res) => {
 });
 
 // Documents
+const resolveInstitutionId = (value, fallback) => {
+  const pick = (v) => {
+    if (!v) return null;
+    if (typeof v === 'object' && v._id) return v._id;
+    if (typeof v === 'string' && v !== '[object Object]') return v;
+    return null;
+  };
+  return pick(value) || pick(fallback) || null;
+};
+
 exports.uploadDocument = asyncHandler(async (req, res) => {
   if (!req.file) throw new ApiError(400, 'No file uploaded');
 
   const storage = await storageService.upload(req.file, req.body.category || 'other');
+  const institutionId = resolveInstitutionId(req.body.institution, req.user.institution);
+
   const doc = await Document.create({
     filename: storage.storageKey,
     originalName: req.file.originalname,
@@ -293,8 +376,9 @@ exports.uploadDocument = asyncHandler(async (req, res) => {
     storageKey: storage.storageKey,
     storageProvider: storage.storageProvider,
     bucket: storage.bucket,
+    metadata: storage.metadata,
     uploadedBy: req.user._id,
-    institution: req.body.institution,
+    institution: institutionId || undefined,
     category: req.body.category || 'other',
   });
 
@@ -305,9 +389,12 @@ exports.getDocumentUrl = asyncHandler(async (req, res) => {
   const doc = await Document.findById(req.params.id);
   if (!doc) throw new ApiError(404, 'Document not found');
 
-  const url = doc.storageProvider === 'local'
-    ? `/api/v1/documents/${doc._id}/download`
-    : await storageService.getSignedUrl(doc.storageKey);
+  let url;
+  if (doc.storageProvider === 'local') {
+    url = `/api/v1/documents/${doc._id}/download`;
+  } else {
+    url = await storageService.getSignedUrl(doc.storageKey, 3600, doc.metadata);
+  }
 
   res.json({ success: true, data: { url, document: doc } });
 });
@@ -316,8 +403,14 @@ exports.downloadDocument = asyncHandler(async (req, res) => {
   const fs = require('fs');
   const doc = await Document.findById(req.params.id);
   if (!doc) throw new ApiError(404, 'Document not found');
+
+  if (doc.storageProvider === 'cloudinary' || doc.storageProvider === 's3') {
+    const url = await storageService.getSignedUrl(doc.storageKey, 3600, doc.metadata);
+    return res.redirect(url);
+  }
+
   if (doc.storageProvider !== 'local') {
-    throw new ApiError(400, 'Direct download only available for local storage');
+    throw new ApiError(400, 'Direct download not available for this storage provider');
   }
 
   const filePath = storageService.getLocalFilePath(doc.storageKey);

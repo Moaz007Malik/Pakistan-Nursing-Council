@@ -1,22 +1,36 @@
-import { Typography, Box, Card, CardContent, Grid } from '@mui/material';
+import { Typography, Box, Card, CardContent, Grid, Button, Alert } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import StatCard from '../../components/common/StatCard';
 import StatusChip from '../../components/common/StatusChip';
 
 export default function StudentDashboard() {
-  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
 
   const { data: students } = useQuery({
     queryKey: ['my-student'],
     queryFn: () => api.get('/students', { params: { limit: 1 } }).then((r) => r.data.data?.[0]),
   });
 
+  const { data: membership } = useQuery({
+    queryKey: ['membership-status'],
+    queryFn: () => api.get('/membership/status').then((r) => r.data.data),
+  });
+
   return (
     <Box>
       <Typography variant="h5" fontWeight={700} gutterBottom>Student Portal</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Welcome, {user?.firstName}</Typography>
+      {membership && !membership.active && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Membership expired — <Button size="small" onClick={() => navigate('/renewals/my')}>Renew now</Button>
+        </Alert>
+      )}
+      {membership?.pendingRenewal && membership.active && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Renewal due in {membership.daysToExpiry} days — <Button size="small" onClick={() => navigate('/renewals/my')}>Renew</Button>
+        </Alert>
+      )}
       {students && (
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>

@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import CrudListPage from '../../components/crud/CrudListPage';
 import StatusChip from '../../components/common/StatusChip';
-import { canRegisterFaculty } from '../../utils/constants';
+import { canRegisterFaculty, canViewDocuments } from '../../utils/constants';
 import { RECORD_STATUS_OPTIONS } from '../../utils/crudOptions';
 
-const columns = [
+const baseColumns = [
   { field: 'registrationNumber', headerName: 'Reg. No', width: 150 },
   { field: 'fullName', headerName: 'Name', flex: 1, valueGetter: (p) => p.row.personalInfo?.fullName },
   { field: 'loginEmail', headerName: 'Login Email', width: 200, valueGetter: (p) => p.row.user?.email || p.row.personalInfo?.email || '-' },
@@ -15,6 +15,7 @@ const columns = [
   { field: 'designation', headerName: 'Designation', width: 160, valueGetter: (p) => p.row.professionalInfo?.designation },
   { field: 'qualification', headerName: 'Qualification', width: 160, valueGetter: (p) => p.row.professionalInfo?.qualification },
   { field: 'institution', headerName: 'Institution', width: 180, valueGetter: (p) => p.row.institution?.name },
+  { field: 'documentCount', headerName: 'Files', width: 90, valueFormatter: (p) => (p.value ? `${p.value}` : '0') },
   { field: 'status', headerName: 'Status', width: 130, renderCell: (p) => <StatusChip status={p.value} /> },
 ];
 
@@ -33,6 +34,9 @@ export default function FacultyPage() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const showRegister = canRegisterFaculty(user?.role);
+  const columns = canViewDocuments(user?.role)
+    ? baseColumns
+    : baseColumns.filter((c) => c.field !== 'documentCount');
 
   return (
     <CrudListPage
@@ -74,6 +78,7 @@ export default function FacultyPage() {
           qualification: form.qualification,
         },
       })}
+      detailPath={(row) => `/faculty/${row._id}`}
     />
   );
 }

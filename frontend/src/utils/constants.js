@@ -73,3 +73,13 @@ export const canRegisterFaculty = (role) => [
   ROLES.INSTITUTION_ADMIN,
   ROLES.PRINCIPAL,
 ].includes(role);
+
+export const canViewDocuments = (role) => [
+  ROLES.SUPER_ADMIN,
+  ROLES.COUNCIL_MEMBER,
+  ROLES.COMMITTEE_MEMBER,
+  ROLES.FIELD_OFFICER,
+  ROLES.INSTITUTION_ADMIN,
+  ROLES.PRINCIPAL,
+  ROLES.FACULTY,
+].includes(role);

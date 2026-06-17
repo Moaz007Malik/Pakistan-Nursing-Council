@@ -48,7 +48,7 @@ npm run dev
 - Backend API: http://localhost:5000
 - Swagger: http://localhost:5000/api/docs
 
-Files are stored in `backend/uploads/` (no MinIO/Docker required). Set `STORAGE_PROVIDER=local` in `backend/.env`.
+Files are uploaded to **Cloudinary** by default. Set `STORAGE_PROVIDER=cloudinary` and your Cloudinary credentials in `backend/.env` (see `backend/.env.example`). Use `STORAGE_PROVIDER=local` only for offline dev without cloud storage.
 
 ### Optional: MongoDB via Docker
 
@@ -74,7 +74,7 @@ The repo includes `vercel.json` for full-stack deploy (React frontend + Express 
 | `NODE_ENV` | Yes | `production` |
 | `VITE_API_URL` | Yes | `/api/v1` (same deployment) |
 | `PAYMENTS_ENABLED` | Yes | `false` = auto-pass payments; `true` = live gateways |
-| `STORAGE_PROVIDER` | For uploads | `s3_compatible` + R2/B2 credentials on Vercel |
+| `STORAGE_PROVIDER` | For uploads | `cloudinary` + Cloudinary credentials (recommended) or `s3_compatible` for R2/B2 |
 
 **3. Deploy.** Vercel runs:
 - `frontend` build → static site
@@ -88,7 +88,7 @@ MONGODB_URI="your-atlas-uri" npm run seed --prefix backend
 
 | `VITE_SOCKET_URL` | No | Leave empty on Vercel |
 
-**Storage on Vercel:** Use Cloudflare R2 (free tier) with `STORAGE_PROVIDER=s3_compatible`. No MinIO, Redis, or Docker needed.
+**Storage:** Use **Cloudinary** (`STORAGE_PROVIDER=cloudinary`) for documents and inspection media. Alternatively, Cloudflare R2 with `STORAGE_PROVIDER=s3_compatible`.
 
 **Payments:** `PAYMENTS_ENABLED=false` auto-passes all payments (good for staging).
 - Swagger docs: `https://your-app.vercel.app/api/docs`

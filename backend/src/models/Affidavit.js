@@ -14,7 +14,7 @@ const affidavitSchema = new mongoose.Schema(
   {
     institution: { type: mongoose.Schema.Types.ObjectId, ref: 'Institution', required: true },
     submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    document: { type: mongoose.Schema.Types.ObjectId, ref: 'Document', required: true },
+    document: { type: mongoose.Schema.Types.ObjectId, ref: 'Document' },
     status: {
       type: String,
       enum: ['uploaded', 'verification', 'committee_review', 'council_approval', 'approved', 'rejected'],

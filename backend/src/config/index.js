@@ -4,7 +4,17 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 module.exports = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT, 10) || 5000,
-  mongodbUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/pnmc',
+  mongodb: {
+    uri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/pnmc',
+    uriDirect: process.env.MONGODB_URI_DIRECT || '',
+    dnsSrv: process.env.MONGODB_DNS_SRV !== 'false',
+    dnsServers: process.env.MONGODB_DNS_SERVERS || '',
+    ipv4Only: process.env.MONGODB_IPV4_ONLY === 'true',
+  },
+  // Deprecated: use resolveMongoUri() from ./mongodbUri for connections
+  get mongodbUri() {
+    return this.mongodb.uri;
+  },
   jwt: {
     secret: process.env.JWT_SECRET || 'dev-secret',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
@@ -12,11 +22,18 @@ module.exports = {
     refreshExpire: process.env.JWT_REFRESH_EXPIRE || '7d',
   },
   storage: {
-    // local = disk (npm run dev) | s3_compatible = Cloudflare R2, B2, etc. | s3 = AWS S3
+    // local | cloudinary | s3_compatible | s3
     provider: process.env.STORAGE_PROVIDER
+      || (process.env.CLOUDINARY_CLOUD_NAME ? 'cloudinary' : null)
       || (process.env.VERCEL ? 's3_compatible' : 'local'),
     local: {
       uploadDir: process.env.LOCAL_STORAGE_PATH || 'uploads',
+    },
+    cloudinary: {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      apiSecret: process.env.CLOUDINARY_API_SECRET,
+      folder: process.env.CLOUDINARY_FOLDER || 'pnmc',
     },
     s3Compatible: {
       endpoint: process.env.S3_ENDPOINT,

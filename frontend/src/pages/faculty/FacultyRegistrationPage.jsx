@@ -1,35 +1,62 @@
+import { useState } from 'react';
 import { Typography, Box, Card, CardContent, Grid, TextField, Button, MenuItem, Alert } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import api from '../../services/api';
+import { resolveInstitutionId } from '../../utils/uploadDocument';
+import { ROLES } from '../../utils/constants';
+import { FacultyDocumentsForm, buildFacultyDocumentIds } from '../../components/faculty/FacultyDocumentsSection';
 
 export default function FacultyRegistrationPage() {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { user } = useSelector((state) => state.auth);
+  const { register, handleSubmit, formState: { errors }, watch } = useForm();
+  const [files, setFiles] = useState({});
+  const [extraDegrees, setExtraDegrees] = useState([]);
+  const [extraLicenses, setExtraLicenses] = useState([]);
+
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+  const selectedInstitution = watch('institution');
+
+  const { data: institutions = [] } = useQuery({
+    queryKey: ['institutions-picker'],
+    queryFn: () => api.get('/institutions', { params: { limit: 100 } }).then((r) => r.data.data),
+    enabled: isSuperAdmin,
+  });
+
+  const institutionId = isSuperAdmin
+    ? selectedInstitution
+    : resolveInstitutionId(user?.institution);
 
   const mutation = useMutation({
-    mutationFn: (data) => api.post('/faculty', {
-      loginEmail: data.loginEmail,
-      loginPassword: data.loginPassword,
-      personalInfo: {
-        fullName: data.fullName,
-        cnic: data.cnic,
-        contact: data.contact,
-        email: data.loginEmail,
-        address: data.address,
-        gender: data.gender,
-      },
-      professionalInfo: {
-        qualification: data.qualification,
-        specialization: data.specialization,
-        designation: data.designation,
-        department: data.department,
-        teachingExperience: data.teachingExperience ? Number(data.teachingExperience) : undefined,
-        joiningDate: data.joiningDate || undefined,
-        licenseNumber: data.licenseNumber,
-      },
-    }),
+    mutationFn: (data) => {
+      const docPayload = buildFacultyDocumentIds(files, extraDegrees, extraLicenses);
+      return api.post('/faculty', {
+        institution: data.institution || institutionId,
+        loginEmail: data.loginEmail,
+        loginPassword: data.loginPassword,
+        personalInfo: {
+          fullName: data.fullName,
+          cnic: data.cnic,
+          contact: data.contact,
+          email: data.loginEmail,
+          address: data.address,
+          gender: data.gender,
+        },
+        professionalInfo: {
+          qualification: data.qualification,
+          specialization: data.specialization,
+          designation: data.designation,
+          department: data.department,
+          teachingExperience: data.teachingExperience ? Number(data.teachingExperience) : undefined,
+          joiningDate: data.joiningDate || undefined,
+          licenseNumber: data.licenseNumber,
+        },
+        ...docPayload,
+      });
+    },
     onSuccess: () => navigate('/faculty'),
   });
 
@@ -47,6 +74,22 @@ export default function FacultyRegistrationPage() {
       )}
 
       <form onSubmit={handleSubmit((d) => mutation.mutate(d))}>
+        {isSuperAdmin && (
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              select
+              fullWidth
+              label="Institution"
+              {...register('institution', { required: true })}
+              error={!!errors.institution}
+            >
+              {institutions.map((inst) => (
+                <MenuItem key={inst._id} value={inst._id}>{inst.name}</MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        )}
+
         <Card sx={{ mb: 3 }}><CardContent>
           <Typography variant="h6" gutterBottom>Personal Information</Typography>
           <Grid container spacing={2}>
@@ -75,6 +118,19 @@ export default function FacultyRegistrationPage() {
             <Grid item xs={12} md={4}><TextField fullWidth label="License Number" {...register('licenseNumber')} /></Grid>
           </Grid>
         </CardContent></Card>
+
+        <FacultyDocumentsForm
+          institution={institutionId}
+          files={files}
+          setFiles={setFiles}
+          extraDegrees={extraDegrees}
+          setExtraDegrees={setExtraDegrees}
+          extraLicenses={extraLicenses}
+          setExtraLicenses={setExtraLicenses}
+        />
+        {isSuperAdmin && !institutionId && (
+          <Alert severity="info" sx={{ mb: 2 }}>Select an institution above before uploading documents.</Alert>
+        )}
 
         <Card sx={{ mb: 3 }}><CardContent>
           <Typography variant="h6" gutterBottom>Portal Login Credentials</Typography>

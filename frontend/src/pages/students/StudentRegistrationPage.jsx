@@ -1,34 +1,81 @@
-import { Typography, Box, Card, CardContent, Grid, TextField, Button, MenuItem, Alert } from '@mui/material';
+import { useState } from 'react';
+import { Typography, Box, Grid, TextField, Button, MenuItem, Alert } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import api from '../../services/api';
+import { resolveInstitutionId } from '../../utils/uploadDocument';
+import { ROLES } from '../../utils/constants';
+import { StudentDocumentsForm, buildStudentDocumentIds } from '../../components/students/StudentDocumentsSection';
 
 export default function StudentRegistrationPage() {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { user } = useSelector((state) => state.auth);
+  const { register, handleSubmit, formState: { errors }, watch } = useForm();
+  const [files, setFiles] = useState({});
+  const [extraCertificates, setExtraCertificates] = useState([]);
+
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+  const selectedInstitution = watch('institution');
+
+  const { data: institutions = [] } = useQuery({
+    queryKey: ['institutions-picker'],
+    queryFn: () => api.get('/institutions', { params: { limit: 100 } }).then((r) => r.data.data),
+    enabled: isSuperAdmin,
+  });
+
+  const institutionId = isSuperAdmin
+    ? selectedInstitution
+    : resolveInstitutionId(user?.institution);
 
   const mutation = useMutation({
-    mutationFn: (data) => api.post('/students', {
-      loginEmail: data.loginEmail,
-      loginPassword: data.loginPassword,
-      personalInfo: {
-        fullName: data.fullName,
-        fatherHusbandName: data.fatherHusbandName,
-        cnic: data.cnic,
-        dateOfBirth: data.dateOfBirth,
-        contact: data.contact,
-        address: data.address,
-        nationality: data.nationality || 'Pakistani',
-        gender: data.gender,
-        email: data.loginEmail,
-      },
-      academicInfo: {
-        matric: { board: data.matricBoard, year: Number(data.matricYear), marks: Number(data.matricMarks), totalMarks: 1100, percentage: Number(data.matricPercentage) },
-        fsc: { board: data.fscBoard, year: Number(data.fscYear), marks: Number(data.fscMarks), totalMarks: 1100, percentage: Number(data.fscPercentage), biologyMarks: Number(data.biologyMarks) },
-      },
-      programInfo: { course: data.course, degree: data.degree, session: data.session, semester: Number(data.semester), batch: data.batch },
-    }),
+    mutationFn: (data) => {
+      const docPayload = buildStudentDocumentIds(files, extraCertificates);
+      return api.post('/students', {
+        institution: data.institution || institutionId,
+        loginEmail: data.loginEmail,
+        loginPassword: data.loginPassword,
+        personalInfo: {
+          fullName: data.fullName,
+          fatherHusbandName: data.fatherHusbandName,
+          cnic: data.cnic,
+          dateOfBirth: data.dateOfBirth,
+          contact: data.contact,
+          address: data.address,
+          nationality: data.nationality || 'Pakistani',
+          gender: data.gender,
+          email: data.loginEmail,
+        },
+        academicInfo: {
+          matric: {
+            board: data.matricBoard,
+            year: Number(data.matricYear),
+            marks: Number(data.matricMarks),
+            totalMarks: 1100,
+            percentage: Number(data.matricPercentage),
+            ...docPayload.academicInfo?.matric,
+          },
+          fsc: {
+            board: data.fscBoard,
+            year: Number(data.fscYear),
+            marks: Number(data.fscMarks),
+            totalMarks: 1100,
+            percentage: Number(data.fscPercentage),
+            biologyMarks: Number(data.biologyMarks),
+            ...docPayload.academicInfo?.fsc,
+          },
+        },
+        documents: docPayload.documents,
+        programInfo: {
+          course: data.course,
+          degree: data.degree,
+          session: data.session,
+          semester: Number(data.semester),
+          batch: data.batch,
+        },
+      });
+    },
     onSuccess: () => navigate('/students'),
   });
 
@@ -37,10 +84,28 @@ export default function StudentRegistrationPage() {
       <Typography variant="h5" fontWeight={700} gutterBottom>Student Registration Form</Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Based on PNMC Pre-Registration Application Form</Typography>
 
-      {mutation.isError && <Alert severity="error" sx={{ mb: 2 }}>{mutation.error?.response?.data?.message || 'Registration failed'}</Alert>}
+      {mutation.isError && (
+        <Alert severity="error" sx={{ mb: 2 }}>{mutation.error?.response?.data?.message || 'Registration failed'}</Alert>
+      )}
 
       <form onSubmit={handleSubmit((d) => mutation.mutate(d))}>
-        <Card sx={{ mb: 3 }}><CardContent>
+        {isSuperAdmin && (
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              select
+              fullWidth
+              label="Institution"
+              {...register('institution', { required: true })}
+              error={!!errors.institution}
+            >
+              {institutions.map((inst) => (
+                <MenuItem key={inst._id} value={inst._id}>{inst.name}</MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        )}
+
+        <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>Personal Information</Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}><TextField fullWidth label="Full Name" {...register('fullName', { required: true })} error={!!errors.fullName} /></Grid>
@@ -52,9 +117,9 @@ export default function StudentRegistrationPage() {
             <Grid item xs={12} md={6}><TextField fullWidth label="Nationality" defaultValue="Pakistani" {...register('nationality')} /></Grid>
             <Grid item xs={12}><TextField fullWidth label="Address" multiline rows={2} {...register('address', { required: true })} /></Grid>
           </Grid>
-        </CardContent></Card>
+        </Box>
 
-        <Card sx={{ mb: 3 }}><CardContent>
+        <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>Academic Information</Typography>
           <Grid container spacing={2}>
             <Grid item xs={12}><Typography variant="subtitle2" color="primary">Matriculation</Typography></Grid>
@@ -69,9 +134,20 @@ export default function StudentRegistrationPage() {
             <Grid item xs={12} md={2}><TextField fullWidth label="Percentage" type="number" {...register('fscPercentage')} /></Grid>
             <Grid item xs={12} md={2}><TextField fullWidth label="Biology Marks" type="number" {...register('biologyMarks')} /></Grid>
           </Grid>
-        </CardContent></Card>
+        </Box>
 
-        <Card sx={{ mb: 3 }}><CardContent>
+        <StudentDocumentsForm
+          institution={institutionId}
+          files={files}
+          setFiles={setFiles}
+          extraCertificates={extraCertificates}
+          setExtraCertificates={setExtraCertificates}
+        />
+        {isSuperAdmin && !institutionId && (
+          <Alert severity="info" sx={{ mb: 2 }}>Select an institution above before uploading documents.</Alert>
+        )}
+
+        <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>Program Information</Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}><TextField fullWidth label="Course" select {...register('course')} defaultValue="BSN"><MenuItem value="BSN">BSN</MenuItem><MenuItem value="Post-RN BSN">Post-RN BSN</MenuItem><MenuItem value="Diploma">Diploma</MenuItem><MenuItem value="Midwifery">Midwifery</MenuItem></TextField></Grid>
@@ -80,9 +156,9 @@ export default function StudentRegistrationPage() {
             <Grid item xs={12} md={4}><TextField fullWidth label="Semester" type="number" {...register('semester')} defaultValue={1} /></Grid>
             <Grid item xs={12} md={4}><TextField fullWidth label="Batch" {...register('batch')} /></Grid>
           </Grid>
-        </CardContent></Card>
+        </Box>
 
-        <Card sx={{ mb: 3 }}><CardContent>
+        <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>Portal Login Credentials</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             The student will use these credentials to sign in to the student portal.
@@ -109,11 +185,13 @@ export default function StudentRegistrationPage() {
               />
             </Grid>
           </Grid>
-        </CardContent></Card>
+        </Box>
 
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button variant="outlined" onClick={() => navigate('/students')}>Cancel</Button>
-          <Button type="submit" variant="contained" disabled={mutation.isPending}>{mutation.isPending ? 'Submitting...' : 'Submit Registration'}</Button>
+          <Button type="submit" variant="contained" disabled={mutation.isPending}>
+            {mutation.isPending ? 'Submitting...' : 'Submit Registration'}
+          </Button>
         </Box>
       </form>
     </Box>

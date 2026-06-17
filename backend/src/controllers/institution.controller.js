@@ -1,8 +1,10 @@
-const { Institution, InstitutionApplication } = require('../models');
+const { Institution, InstitutionApplication, FieldInspection, Affidavit } = require('../models');
 const { generateRegistrationNumber, generateQRCode } = require('../utils/generators');
 const notificationService = require('../services/notification.service');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
+const { ROLES } = require('../config/constants');
+const { markStep, advanceStep } = require('../utils/workflowHelpers');
 const { paginate, paginatedResponse, buildFilter } = require('../utils/pagination');
 const { INSTITUTION_STATUSES } = require('../config/constants');
 
@@ -80,6 +82,7 @@ exports.getApplication = asyncHandler(async (req, res) => {
   const application = await InstitutionApplication.findById(req.params.id)
     .populate('institution')
     .populate('fieldInspection')
+    .populate('affidavit')
     .populate('submittedBy', 'firstName lastName email');
   if (!application) throw new ApiError(404, 'Application not found');
   res.json({ success: true, data: application });
@@ -116,28 +119,69 @@ exports.advanceWorkflow = asyncHandler(async (req, res) => {
   const application = await InstitutionApplication.findById(req.params.id).populate('institution');
   if (!application) throw new ApiError(404, 'Application not found');
 
-  const statusFlow = {
-    submitted: 'under_review',
-    under_review: 'field_inspection_pending',
-    field_inspection_pending: 'committee_review',
-    committee_review: 'council_review',
-    council_review: action === 'approve' ? 'approved' : 'rejected',
+  const reject = async (reason) => {
+    const currentStatus = application.status;
+    application.status = 'rejected';
+    application.rejectionReason = reason;
+    const stepMap = {
+      submitted: 'institution_submission',
+      under_review: 'field_inspection',
+      field_inspection_pending: 'field_inspection',
+      committee_review: 'committee_review',
+      council_review: 'council_review',
+    };
+    markStep(application.workflow, stepMap[currentStatus] || 'council_review', 'rejected', req.user._id, reason);
+    await Institution.findByIdAndUpdate(application.institution._id, { status: 'rejected' });
+    await notificationService.notifyRejection(application.submittedBy, 'institution', reason);
   };
 
   if (action === 'reject') {
-    application.status = 'rejected';
-    application.rejectionReason = comments;
-    await Institution.findByIdAndUpdate(application.institution._id, { status: 'rejected' });
-    await notificationService.notifyRejection(
-      application.submittedBy,
-      'institution',
-      comments
-    );
-  } else {
-    application.status = statusFlow[application.status] || application.status;
+    await reject(comments || 'Rejected');
+    await application.save();
+    return res.json({ success: true, data: application });
   }
 
-  if (application.status === 'approved') {
+  const role = req.user.role;
+  const status = application.status;
+
+  if (status === 'submitted' && [ROLES.SUPER_ADMIN, ROLES.COUNCIL_MEMBER].includes(role)) {
+    application.status = 'under_review';
+    advanceStep(application.workflow, 'institution_submission', 'field_inspection');
+  } else if (status === 'under_review' && [ROLES.SUPER_ADMIN, ROLES.COUNCIL_MEMBER].includes(role)) {
+    application.status = 'field_inspection_pending';
+    advanceStep(application.workflow, 'field_inspection', 'committee_review');
+
+    const inspection = await FieldInspection.create({
+      institution: application.institution._id,
+      application: application._id,
+      fieldOfficer: req.user.role === ROLES.FIELD_OFFICER ? req.user._id : req.body.fieldOfficer || req.user._id,
+      status: 'assigned',
+      scheduledDate: req.body.scheduledDate || new Date(),
+    });
+    application.fieldInspection = inspection._id;
+  } else if (status === 'field_inspection_pending' && [ROLES.SUPER_ADMIN, ROLES.FIELD_OFFICER].includes(role)) {
+    const inspection = await FieldInspection.findById(application.fieldInspection);
+    if (!inspection || inspection.status !== 'submitted') {
+      throw new ApiError(400, 'Field inspection must be submitted before committee review');
+    }
+    application.status = 'committee_review';
+    advanceStep(application.workflow, 'field_inspection', 'committee_review');
+  } else if (status === 'committee_review' && [ROLES.SUPER_ADMIN, ROLES.COMMITTEE_MEMBER].includes(role)) {
+    application.committeeReview = application.committeeReview || { votes: [] };
+    application.committeeReview.decision = 'approve';
+    application.committeeReview.votedAt = new Date();
+    application.status = 'council_review';
+    advanceStep(application.workflow, 'committee_review', 'council_review');
+  } else if (status === 'council_review' && [ROLES.SUPER_ADMIN, ROLES.COUNCIL_MEMBER].includes(role)) {
+    application.status = 'approved';
+    markStep(application.workflow, 'council_review', 'completed', req.user._id, comments);
+    application.councilReview = {
+      decision: 'approved',
+      reviewedBy: req.user._id,
+      reviewedAt: new Date(),
+      comments,
+    };
+
     const count = await Institution.countDocuments({ status: 'approved' });
     const regNumber = generateRegistrationNumber('INST', count + 1);
     const qrCode = await generateQRCode({
@@ -146,20 +190,34 @@ exports.advanceWorkflow = asyncHandler(async (req, res) => {
       name: application.institution.name,
     });
 
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
     await Institution.findByIdAndUpdate(application.institution._id, {
       status: 'approved',
       registrationNumber: regNumber,
       qrCode,
       approvedAt: new Date(),
       approvedBy: req.user._id,
-      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      expiresAt,
     });
+
+    const affidavit = await Affidavit.create({
+      institution: application.institution._id,
+      submittedBy: req.user._id,
+      status: 'approved',
+      councilDecision: 'approved',
+      committeeDecision: application.committeeReview?.decision,
+      expiresAt,
+      verificationNotes: 'Auto-generated on council approval — institution affidavit issued.',
+    });
+    application.affidavit = affidavit._id;
 
     await notificationService.notifyApproval(
       application.submittedBy,
       'institution',
       application.institution.name
     );
+  } else {
+    throw new ApiError(403, `Cannot advance application from status "${status}" with your role`);
   }
 
   await application.save();

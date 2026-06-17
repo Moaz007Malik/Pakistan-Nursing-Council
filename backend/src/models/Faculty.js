@@ -27,6 +27,7 @@ const facultySchema = new mongoose.Schema(
     },
 
     documents: {
+      cnic: { type: mongoose.Schema.Types.ObjectId, ref: 'Document' },
       degrees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],
       licenses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],
       salarySlip: { type: mongoose.Schema.Types.ObjectId, ref: 'Document' },

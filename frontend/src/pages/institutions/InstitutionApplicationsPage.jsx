@@ -26,6 +26,7 @@ export default function InstitutionApplicationsPage() {
         status: row.status || 'draft',
       })}
       mapFormToPayload={(form) => ({ institution: form.institution, status: form.status })}
+      detailPath={(row) => `/institution-applications/${row._id}`}
     />
   );
 }

@@ -28,6 +28,13 @@ import MonitoringPage from '../pages/monitoring/MonitoringPage';
 import NotificationsPage from '../pages/notifications/NotificationsPage';
 import AuditLogsPage from '../pages/audit/AuditLogsPage';
 import VerifyPage from '../pages/verify/VerifyPage';
+import ApplicationDetailPage from '../pages/institutions/ApplicationDetailPage';
+import InspectionFormPage from '../pages/inspections/InspectionFormPage';
+import EntityDetailPage from '../pages/shared/EntityDetailPage';
+import PaymentSuccessPage from '../pages/payments/PaymentSuccessPage';
+import PaymentCancelPage from '../pages/payments/PaymentCancelPage';
+import MyRenewalPage from '../pages/renewals/MyRenewalPage';
+import MonitoringLivePage from '../pages/monitoring/MonitoringLivePage';
 import { getDashboardRoute } from '../utils/constants';
 
 const ProtectedRoute = ({ children }) => {
@@ -45,6 +52,8 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/verify/:type/:id" element={<VerifyPage />} />
+      <Route path="/payments/success" element={<ProtectedRoute><PaymentSuccessPage /></ProtectedRoute>} />
+      <Route path="/payments/cancel" element={<ProtectedRoute><PaymentCancelPage /></ProtectedRoute>} />
 
       <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
         <Route index element={<DashboardRedirect />} />
@@ -58,19 +67,25 @@ export default function AppRoutes() {
         <Route path="dashboard/student" element={<StudentDashboard />} />
         <Route path="institutions" element={<InstitutionsPage />} />
         <Route path="institution-applications" element={<InstitutionApplicationsPage />} />
+        <Route path="institution-applications/:id" element={<ApplicationDetailPage />} />
         <Route path="students" element={<StudentsPage />} />
+        <Route path="students/:id" element={<EntityDetailPage entityPath="students" />} />
         <Route path="students/register" element={<StudentRegistrationPage />} />
         <Route path="faculty" element={<FacultyPage />} />
+        <Route path="faculty/:id" element={<EntityDetailPage entityPath="faculty" />} />
         <Route path="faculty/register" element={<FacultyRegistrationPage />} />
         <Route path="attendance" element={<AttendancePage />} />
         <Route path="inspections" element={<InspectionsPage />} />
+        <Route path="inspections/:id" element={<InspectionFormPage />} />
         <Route path="payments" element={<PaymentsPage />} />
         <Route path="renewals" element={<RenewalsPage />} />
+        <Route path="renewals/my" element={<MyRenewalPage />} />
         <Route path="affidavits" element={<AffidavitsPage />} />
         <Route path="committees" element={<CommitteesPage />} />
         <Route path="council" element={<CouncilPage />} />
         <Route path="biometric" element={<BiometricPage />} />
-        <Route path="monitoring" element={<MonitoringPage />} />
+        <Route path="monitoring" element={<MonitoringLivePage />} />
+        <Route path="monitoring/streams" element={<MonitoringPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="audit-logs" element={<AuditLogsPage />} />
       </Route>

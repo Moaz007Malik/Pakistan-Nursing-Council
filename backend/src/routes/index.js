@@ -78,7 +78,9 @@ router.post('/payments', authenticate, authorize(PERMISSIONS.PAYMENTS_CREATE), p
 router.post('/payments/:invoiceNumber/verify', paymentController.verifyPayment);
 router.get('/payments', authenticate, authorize(PERMISSIONS.PAYMENTS_READ), paymentController.getPayments);
 router.post('/renewals', authenticate, authorize(PERMISSIONS.STUDENTS_RENEW), paymentController.createRenewal);
+router.post('/renewals/request', authenticate, authorize(PERMISSIONS.STUDENTS_RENEW, PERMISSIONS.FACULTY_RENEW), paymentController.requestRenewal);
 router.get('/renewals', authenticate, authorize(PERMISSIONS.PAYMENTS_READ), paymentController.getRenewals);
+router.get('/membership/status', authenticate, paymentController.getMembershipStatus);
 router.delete('/renewals/:id', authenticate, authorize(PERMISSIONS.RENEWALS_DELETE), paymentController.deleteRenewal);
 router.post('/renewals/:id/approve', authenticate, authorize(PERMISSIONS.PAYMENTS_VERIFY), paymentController.approveRenewal);
 
@@ -92,6 +94,7 @@ router.delete('/affidavits/:id', authenticate, authorize(PERMISSIONS.AFFIDAVITS_
 // Field Inspections
 router.post('/inspections', authenticate, authorize(PERMISSIONS.INSPECTIONS_CREATE), moduleController.createInspection);
 router.get('/inspections', authenticate, authorize(PERMISSIONS.INSPECTIONS_READ), moduleController.getInspections);
+router.get('/inspections/:id', authenticate, authorize(PERMISSIONS.INSPECTIONS_READ), moduleController.getInspection);
 router.patch('/inspections/:id', authenticate, authorize(PERMISSIONS.INSPECTIONS_UPDATE, PERMISSIONS.INSPECTIONS_SUBMIT), moduleController.updateInspection);
 router.delete('/inspections/:id', authenticate, authorize(PERMISSIONS.INSPECTIONS_DELETE), moduleController.deleteInspection);
 

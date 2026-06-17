@@ -1,10 +1,20 @@
 const { Faculty } = require('../models');
-const { generateRegistrationNumber } = require('../utils/generators');
 const portalUserService = require('../services/portalUser.service');
-const asyncHandler = require('../utils/asyncHandler');
-const ApiError = require('../utils/ApiError');
+const {
+  assignFacultyRegistration,
+  activateFacultyMembership,
+} = require('../services/registration.service');
+const asyncHandler = require('../utils/asyncHandler');const ApiError = require('../utils/ApiError');
 const { ROLES } = require('../config/constants');
 const { paginate, paginatedResponse, buildFilter } = require('../utils/pagination');
+
+const countFacultyDocuments = (faculty) => {
+  const d = faculty.documents || {};
+  return [
+    d.cnic, d.picture, d.registrationCard, d.salarySlip,
+    ...(d.degrees || []), ...(d.licenses || []),
+  ].filter(Boolean).length;
+};
 
 const resolvePortalCredentials = (body) => ({
   email: body.loginEmail || body.email || body.personalInfo?.email,
@@ -33,6 +43,20 @@ const attachPortalUser = async ({ email, password, fullName, institution, phone,
     phone,
   });
   return user._id;
+};
+
+const populateDocuments = [
+  { path: 'documents.cnic', select: 'originalName mimeType metadata storageProvider' },
+  { path: 'documents.picture', select: 'originalName mimeType metadata storageProvider' },
+  { path: 'documents.registrationCard', select: 'originalName mimeType metadata storageProvider' },
+  { path: 'documents.salarySlip', select: 'originalName mimeType metadata storageProvider' },
+  { path: 'documents.degrees', select: 'originalName mimeType metadata storageProvider' },
+  { path: 'documents.licenses', select: 'originalName mimeType metadata storageProvider' },
+];
+
+const applyDocumentPopulate = (query) => {
+  populateDocuments.forEach(({ path, select }) => query.populate(path, select));
+  return query;
 };
 
 exports.createFaculty = asyncHandler(async (req, res) => {
@@ -65,9 +89,14 @@ exports.createFaculty = asyncHandler(async (req, res) => {
     ],
   });
 
+  await assignFacultyRegistration(faculty);
+  await faculty.save();
+
+  const populated = await applyDocumentPopulate(Faculty.findById(faculty._id)).exec();
+
   res.status(201).json({
     success: true,
-    data: faculty,
+    data: populated,
     portalAccess: credentials.email ? { email: credentials.email } : null,
   });
 });
@@ -85,14 +114,36 @@ exports.getFacultyList = asyncHandler(async (req, res) => {
     req.query
   );
   const data = await query;
-  res.json(paginatedResponse(data, total, pagination));
+
+  await Promise.all(
+    data
+      .filter((f) => !f.registrationNumber)
+      .map(async (f) => {
+        await assignFacultyRegistration(f);
+        await f.save();
+      })
+  );
+
+  const enriched = data.map((f) => ({
+    ...f.toObject(),
+    documentCount: countFacultyDocuments(f),
+  }));
+  res.json(paginatedResponse(enriched, total, pagination));
 });
 
 exports.getFaculty = asyncHandler(async (req, res) => {
-  const faculty = await Faculty.findById(req.params.id)
-    .populate('institution', 'name')
-    .populate('user', 'email firstName lastName');
+  const faculty = await applyDocumentPopulate(
+    Faculty.findById(req.params.id)
+      .populate('institution', 'name')
+      .populate('user', 'email firstName lastName')
+  );
   if (!faculty) throw new ApiError(404, 'Faculty not found');
+
+  if (!faculty.registrationNumber) {
+    await assignFacultyRegistration(faculty);
+    await faculty.save();
+  }
+
   res.json({ success: true, data: faculty });
 });
 
@@ -123,9 +174,27 @@ exports.updateFaculty = asyncHandler(async (req, res) => {
     }
   }
 
+  if (updates.documents) {
+    faculty.documents = {
+      ...(faculty.documents?.toObject?.() || faculty.documents || {}),
+      ...updates.documents,
+    };
+    delete updates.documents;
+  }
+
   Object.assign(faculty, updates);
+
+  if (['active', 'approved'].includes(faculty.status) && !faculty.registrationNumber) {
+    await assignFacultyRegistration(faculty);
+  }
+  if (faculty.status === 'approved') {
+    activateFacultyMembership(faculty, req.user._id);
+  }
+
   await faculty.save();
-  res.json({ success: true, data: faculty });
+
+  const populated = await applyDocumentPopulate(Faculty.findById(faculty._id)).exec();
+  res.json({ success: true, data: populated });
 });
 
 exports.deleteFaculty = asyncHandler(async (req, res) => {
@@ -153,14 +222,9 @@ exports.advanceWorkflow = asyncHandler(async (req, res) => {
     faculty.status = flow[faculty.status] || faculty.status;
   }
 
-  if (faculty.status === 'approved') {
-    const count = await Faculty.countDocuments({ status: { $in: ['approved', 'active'] } });
-    faculty.registrationNumber = generateRegistrationNumber('FAC', count + 1);
-    faculty.approvedAt = new Date();
-    faculty.approvedBy = req.user._id;
-    faculty.status = 'active';
-    faculty.expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-    faculty.renewalDueDate = faculty.expiresAt;
+  if (faculty.status === 'approved' || faculty.status === 'active') {
+    await assignFacultyRegistration(faculty);
+    activateFacultyMembership(faculty, req.user._id);
   }
 
   await faculty.save();

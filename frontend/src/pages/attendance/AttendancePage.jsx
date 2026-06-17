@@ -1,17 +1,20 @@
-import { Typography, Box, Grid, Card, CardContent } from '@mui/material';
+import { Typography, Box, Grid, Card, CardContent, List, ListItem, ListItemText } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import api from '../../services/api';
 import StatCard from '../../components/common/StatCard';
+import { useAttendanceFeed } from '../../hooks/useRealtime';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function AttendancePage() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['attendance-dashboard'],
     queryFn: () => api.get('/attendance/institution').then((r) => r.data.data),
   });
+
+  const liveEvents = useAttendanceFeed(() => refetch());
 
   const studentData = {
     labels: ['Present', 'Absent', 'Late', 'Leave'],
@@ -36,6 +39,25 @@ export default function AttendancePage() {
           <Card><CardContent>
             <Typography variant="h6" gutterBottom>Student Attendance Today</Typography>
             <Box sx={{ height: 250 }}><Doughnut data={studentData} options={{ maintainAspectRatio: false }} /></Box>
+          </CardContent></Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card><CardContent>
+            <Typography variant="h6" gutterBottom>Live Biometric Events</Typography>
+            {liveEvents.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">Waiting for machine sync...</Typography>
+            ) : (
+              <List dense>
+                {liveEvents.slice(0, 8).map((ev, i) => (
+                  <ListItem key={i} disablePadding>
+                    <ListItemText
+                      primary={ev.studentName || ev.facultyName || ev.entityType || 'Check-in'}
+                      secondary={new Date(ev.timestamp || Date.now()).toLocaleTimeString()}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
           </CardContent></Card>
         </Grid>
       </Grid>

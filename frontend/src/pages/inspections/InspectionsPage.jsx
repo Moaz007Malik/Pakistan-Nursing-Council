@@ -40,6 +40,7 @@ export default function InspectionsPage() {
         recommendation: form.recommendation || undefined,
         visitDate: form.visitDate || undefined,
       })}
+      detailPath={(row) => `/inspections/${row._id}`}
     />
   );
 }

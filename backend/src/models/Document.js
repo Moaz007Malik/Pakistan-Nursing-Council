@@ -7,7 +7,7 @@ const documentSchema = new mongoose.Schema(
     mimeType: String,
     size: Number,
     storageKey: { type: String, required: true },
-    storageProvider: { type: String, enum: ['local', 's3'], default: 'local' },
+    storageProvider: { type: String, enum: ['local', 's3', 'cloudinary'], default: 'local' },
     bucket: String,
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     institution: { type: mongoose.Schema.Types.ObjectId, ref: 'Institution' },
