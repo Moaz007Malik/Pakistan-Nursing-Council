@@ -8,6 +8,7 @@
     "dev:clean": "npm run clean && npm run dev",
     "clean": "node scripts/clean-next.js",
     "build": "next build",
+    "build:netlify": "node scripts/build-netlify.js",
     "build:clean": "npm run clean && next build",
     "start": "NODE_ENV=production node server.js",
     "seed": "node src/server/seeds/index.js",
