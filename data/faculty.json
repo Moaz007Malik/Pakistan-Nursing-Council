@@ -1,0 +1,115 @@
+[
+  {
+    "_id": "59f1a060-313e-4b37-9c19-b0f8e56545f9",
+    "user": "a153480c-6da7-4e7d-9278-a24ec82d06b6",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "personalInfo": {
+      "fullName": "Dr. Hassan Raza",
+      "cnic": "35202-7654321-9",
+      "contact": "+92-300-5551234",
+      "email": "faculty@pnmc.com",
+      "gender": "male"
+    },
+    "professionalInfo": {
+      "qualification": "PhD Nursing",
+      "specialization": "Medical-Surgical Nursing",
+      "teachingExperience": 12,
+      "designation": "Associate Professor",
+      "department": "Medical-Surgical Nursing",
+      "joiningDate": "2015-08-01T00:00:00.000Z"
+    },
+    "status": "active",
+    "workflow": [],
+    "expiresAt": "2027-06-18T06:41:05.637Z",
+    "renewalDueDate": "2027-06-18T06:41:05.637Z",
+    "registrationNumber": "FAC-2026-00001",
+    "approvedAt": "2026-06-18T06:41:05.637Z",
+    "approvedBy": "39895cd4-7216-48a6-8d38-59403dfe7701",
+    "createdAt": "2026-06-18T06:41:05.637Z",
+    "updatedAt": "2026-06-18T06:41:05.637Z"
+  },
+  {
+    "_id": "9d4e15c0-8fe9-4b07-b45a-370274a4c21d",
+    "user": "d0899e61-a0c5-4a8d-8a56-4dec50cabcad",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "personalInfo": {
+      "fullName": "Ms. Zainab Malik",
+      "cnic": "35202-8765432-1",
+      "contact": "+92-300-2223344",
+      "email": "zainab.malik@pnmc.com",
+      "gender": "female"
+    },
+    "professionalInfo": {
+      "qualification": "MSN",
+      "specialization": "Pediatric Nursing",
+      "teachingExperience": 8,
+      "designation": "Lecturer",
+      "department": "Pediatric Nursing",
+      "joiningDate": "2018-01-15T00:00:00.000Z"
+    },
+    "status": "active",
+    "workflow": [],
+    "expiresAt": "2027-06-18T06:41:05.871Z",
+    "renewalDueDate": "2027-06-18T06:41:05.871Z",
+    "registrationNumber": "FAC-2026-00002",
+    "approvedAt": "2026-06-18T06:41:05.871Z",
+    "approvedBy": "39895cd4-7216-48a6-8d38-59403dfe7701",
+    "createdAt": "2026-06-18T06:41:05.871Z",
+    "updatedAt": "2026-06-18T06:41:05.871Z"
+  },
+  {
+    "_id": "14b536ed-89aa-4eb4-94b4-2c8da3ca8dcb",
+    "user": "a1b04771-d889-40da-8d58-0135cfaca25a",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "personalInfo": {
+      "fullName": "Mr. Tariq Ahmed",
+      "cnic": "35202-9876543-2",
+      "contact": "+92-301-3334455",
+      "email": "tariq.ahmed@pnmc.com",
+      "gender": "male"
+    },
+    "professionalInfo": {
+      "qualification": "BSN",
+      "specialization": "Community Health",
+      "teachingExperience": 5,
+      "designation": "Clinical Instructor",
+      "department": "Community Health Nursing",
+      "joiningDate": "2020-09-01T00:00:00.000Z"
+    },
+    "status": "institution_approval",
+    "workflow": [
+      {
+        "step": "institution_approval",
+        "status": "in_progress"
+      }
+    ],
+    "registrationNumber": "FAC-2026-00003",
+    "createdAt": "2026-06-18T06:41:06.100Z",
+    "updatedAt": "2026-06-18T06:41:06.100Z"
+  },
+  {
+    "_id": "f792ebb6-976f-46cd-bf64-82e8e5466a41",
+    "user": "992ca10b-9bfe-4fdd-a16e-5e08f5f05900",
+    "institution": "7694552c-1ae0-4293-b135-8b3d7af8da1d",
+    "personalInfo": {
+      "fullName": "Dr. Ameen Shah",
+      "cnic": "42101-5566778-9",
+      "contact": "+92-321-5544332",
+      "email": "dr.ameen@kson.edu.pk",
+      "gender": "male"
+    },
+    "professionalInfo": {
+      "qualification": "MSN",
+      "specialization": "Psychiatric Nursing",
+      "teachingExperience": 6,
+      "designation": "Senior Lecturer",
+      "department": "Psychiatric Nursing",
+      "joiningDate": "2019-03-01T00:00:00.000Z"
+    },
+    "status": "draft",
+    "workflow": [],
+    "registrationNumber": "FAC-2026-00004",
+    "createdAt": "2026-06-18T06:41:06.574Z",
+    "updatedAt": "2026-06-18T06:41:06.574Z"
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "3735b8ca-3a57-43ff-bf2c-de003ca9233c",
+    "name": "Classroom A - Live",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "location": "classroom",
+    "locationDetail": "Building A, Room 101",
+    "streamUrl": "rtsp://camera.local/classroom-a",
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:06.578Z",
+    "updatedAt": "2026-06-18T06:41:06.578Z"
+  },
+  {
+    "_id": "a950bcc9-63b1-442f-b66b-d9bfa83d60a8",
+    "name": "Skills Lab - Live",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "location": "lab",
+    "locationDetail": "Building B, Skills Lab",
+    "streamUrl": "rtsp://camera.local/skills-lab",
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:06.578Z",
+    "updatedAt": "2026-06-18T06:41:06.579Z"
+  }
+]

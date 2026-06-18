@@ -1,0 +1,194 @@
+[
+  {
+    "_id": "39895cd4-7216-48a6-8d38-59403dfe7701",
+    "email": "admin@pnmc.com",
+    "password": "$2a$12$FpV08uIfqjl5tM/1ob7quOjnLGPy3JDAPSf9lgz1LtQVohyUIYepS",
+    "firstName": "Super",
+    "lastName": "Admin",
+    "role": "super_admin",
+    "createdAt": "2026-06-18T06:41:02.284Z",
+    "updatedAt": "2026-06-18T06:41:02.522Z"
+  },
+  {
+    "_id": "f5a0a537-9412-4e87-8fc6-f64ed47808b0",
+    "email": "council@pnmc.com",
+    "password": "$2a$12$TiJpGf9Hzft00IojIgfCUuP1jWbXf7mr5Mus6lH6sxCS7IsrD8PnS",
+    "firstName": "Council",
+    "lastName": "Member",
+    "role": "council_member",
+    "createdAt": "2026-06-18T06:41:02.524Z",
+    "updatedAt": "2026-06-18T06:41:02.758Z"
+  },
+  {
+    "_id": "1b01612e-7e94-4dd5-95a5-f0163380d485",
+    "email": "committee@pnmc.com",
+    "password": "$2a$12$2IjQJ/IyoGJsupq8xod1d.bHuqw/BY3foy4kI09vPEx4frx.okgTm",
+    "firstName": "Committee",
+    "lastName": "Member",
+    "role": "committee_member",
+    "createdAt": "2026-06-18T06:41:02.759Z",
+    "updatedAt": "2026-06-18T06:41:02.999Z"
+  },
+  {
+    "_id": "b7b32592-cb4c-4e6d-8ce5-735b2587295d",
+    "email": "field@pnmc.com",
+    "password": "$2a$12$YuBo2/47lV6oLryC6x/Moe5c0nz2qXLYds3NTN3MmLF3374qfjfQW",
+    "firstName": "Field",
+    "lastName": "Officer",
+    "role": "field_officer",
+    "createdAt": "2026-06-18T06:41:03.000Z",
+    "updatedAt": "2026-06-18T06:41:03.237Z"
+  },
+  {
+    "_id": "0f013b8f-bae7-4ce9-88f0-6e3f1d697f75",
+    "email": "finance@pnmc.com",
+    "password": "$2a$12$LkbtrucuuPbhx4qdl66dOerVaddqtXFUj8L7DzWQL.kzQiIgJkJe.",
+    "firstName": "Finance",
+    "lastName": "Officer",
+    "role": "finance_officer",
+    "createdAt": "2026-06-18T06:41:03.238Z",
+    "updatedAt": "2026-06-18T06:41:03.472Z"
+  },
+  {
+    "_id": "6bd9cc89-47c6-4616-a2a5-a0e8d238be22",
+    "email": "monitoring@pnmc.com",
+    "password": "$2a$12$TCqx5ZB/MsaIBRJrItqDuOI3moJWxDykcUHMoFVul04gWm4KqwHCe",
+    "firstName": "Monitoring",
+    "lastName": "Officer",
+    "role": "monitoring_officer",
+    "createdAt": "2026-06-18T06:41:03.473Z",
+    "updatedAt": "2026-06-18T06:41:03.708Z"
+  },
+  {
+    "_id": "655f03b9-d3f9-41fe-9085-fd41b5be4a81",
+    "email": "institution@pnmc.com",
+    "password": "$2a$12$.weLY/usnuBEcqI0ZFEFE.z/ndb8a3pe1ihr7qrt3V99a7YLEEMXm",
+    "firstName": "Institution",
+    "lastName": "Admin",
+    "role": "institution_admin",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:03.711Z",
+    "updatedAt": "2026-06-18T06:41:03.945Z"
+  },
+  {
+    "_id": "4e163af8-cd3e-4673-8d3e-eb7bd0bfa329",
+    "email": "institution2@pnmc.com",
+    "password": "$2a$12$IXqlyJK0ToDP/Gifdu9x7.lEiX1e0hDQrTFlOyc6qo.ceaTMahCYy",
+    "firstName": "Karachi",
+    "lastName": "Admin",
+    "role": "institution_admin",
+    "institution": "7694552c-1ae0-4293-b135-8b3d7af8da1d",
+    "createdAt": "2026-06-18T06:41:03.946Z",
+    "updatedAt": "2026-06-18T06:41:04.176Z"
+  },
+  {
+    "_id": "b5c66fcc-3b54-4946-8776-bf1e1737a801",
+    "email": "principal@pnmc.com",
+    "password": "$2a$12$DhS/Rew0RhR5P5h34QQF7eStTjJLUtBBIQ0MoV1.xWcyZQvHdQFoa",
+    "firstName": "Dr. Sarah",
+    "lastName": "Ahmed",
+    "role": "principal",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:04.181Z",
+    "updatedAt": "2026-06-18T06:41:04.409Z"
+  },
+  {
+    "_id": "662c512c-3627-44fe-b238-0eb71468f346",
+    "email": "student@pnmc.com",
+    "password": "$2a$12$DNOycRt7F0ZUsNGVBlL10uT.IM8ktwWRCRCaO7q9HCBrBade/bdku",
+    "firstName": "Ayesha",
+    "lastName": "Khan",
+    "role": "student",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:04.415Z",
+    "updatedAt": "2026-06-18T06:41:04.650Z"
+  },
+  {
+    "_id": "c89d7cf8-5445-4a8d-82a0-b69a8a4286e3",
+    "email": "ali.raza@pnmc.com",
+    "password": "$2a$12$WNUwef..fjYT8gnueSMvFOanoj3HOoVg5ZycUimoscEBMooy5decm",
+    "firstName": "Ali",
+    "lastName": "Raza",
+    "role": "student",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:04.689Z",
+    "updatedAt": "2026-06-18T06:41:04.920Z"
+  },
+  {
+    "_id": "74b7a5e2-a1e9-4aa1-a93c-1bb6a7f42fbd",
+    "email": "fatima.noor@pnmc.com",
+    "password": "$2a$12$q5ZS3f0pb2vodpvhZIjdxuo3sJhSPvRdX50pZR1wFelS1nx1gVdGq",
+    "firstName": "Fatima",
+    "lastName": "Noor",
+    "role": "student",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:04.936Z",
+    "updatedAt": "2026-06-18T06:41:05.161Z"
+  },
+  {
+    "_id": "49ccd29f-4f95-4fcb-b091-8737429fcb32",
+    "email": "omar.siddiqui@pnmc.com",
+    "password": "$2a$12$iLfTMLl2qagJckR.FvGrPOpCwjpyWENjIui/aG3f8eS5MUD2vtW8y",
+    "firstName": "Omar",
+    "lastName": "Siddiqui",
+    "role": "student",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:05.172Z",
+    "updatedAt": "2026-06-18T06:41:05.399Z"
+  },
+  {
+    "_id": "a153480c-6da7-4e7d-9278-a24ec82d06b6",
+    "email": "faculty@pnmc.com",
+    "password": "$2a$12$1YKJAJ4TPBlFh7WIW.DPd.VI7kc3gDo4jryXSySPHEINAuqKdt4LS",
+    "firstName": "Dr. Hassan",
+    "lastName": "Raza",
+    "role": "faculty",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:05.409Z",
+    "updatedAt": "2026-06-18T06:41:05.636Z"
+  },
+  {
+    "_id": "d0899e61-a0c5-4a8d-8a56-4dec50cabcad",
+    "email": "zainab.malik@pnmc.com",
+    "password": "$2a$12$iw8SkzHuNHnJyf9KI1YQ3Oaaj9bZrYLCnKuNO3z41NBqnZICv54gK",
+    "firstName": "Zainab",
+    "lastName": "Malik",
+    "role": "faculty",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:05.638Z",
+    "updatedAt": "2026-06-18T06:41:05.870Z"
+  },
+  {
+    "_id": "a1b04771-d889-40da-8d58-0135cfaca25a",
+    "email": "tariq.ahmed@pnmc.com",
+    "password": "$2a$12$DHCkD.gF5IMa.53lScBn0e/V4EODH38s7q2yvYns0O1NZgQ3z0jJe",
+    "firstName": "Tariq",
+    "lastName": "Ahmed",
+    "role": "faculty",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "createdAt": "2026-06-18T06:41:05.871Z",
+    "updatedAt": "2026-06-18T06:41:06.099Z"
+  },
+  {
+    "_id": "7d971dda-7e68-49c0-87a0-c940c1a8fb79",
+    "email": "sana.khan@kson.edu.pk",
+    "password": "$2a$12$vtcnybns/OlT/gpf9UfD2eJZrae/BdtvDWvpLotcOnSPI48bigzk.",
+    "firstName": "Sana",
+    "lastName": "Khan",
+    "role": "student",
+    "institution": "7694552c-1ae0-4293-b135-8b3d7af8da1d",
+    "createdAt": "2026-06-18T06:41:06.100Z",
+    "updatedAt": "2026-06-18T06:41:06.333Z"
+  },
+  {
+    "_id": "992ca10b-9bfe-4fdd-a16e-5e08f5f05900",
+    "email": "dr.ameen@kson.edu.pk",
+    "password": "$2a$12$kar62gmWHJHohdVXmy6BzeJa0PiH5TnMk0xgDXjnYYZu7ppGHkfs6",
+    "firstName": "Dr. Ameen",
+    "lastName": "Shah",
+    "role": "faculty",
+    "institution": "7694552c-1ae0-4293-b135-8b3d7af8da1d",
+    "createdAt": "2026-06-18T06:41:06.343Z",
+    "updatedAt": "2026-06-18T06:41:06.573Z"
+  }
+]

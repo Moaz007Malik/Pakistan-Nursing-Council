@@ -1,0 +1,95 @@
+[
+  {
+    "_id": "e84c7d29-f202-42c2-9bae-4e8adfd697c8",
+    "recipient": "39895cd4-7216-48a6-8d38-59403dfe7701",
+    "title": "New institution application",
+    "message": "Karachi School of Nursing submitted a registration application.",
+    "type": "general",
+    "channels": {
+      "inApp": {
+        "sent": true,
+        "sentAt": "2026-06-18T06:41:06.586Z"
+      }
+    },
+    "relatedEntity": {
+      "entityType": "institution",
+      "entityId": "7694552c-1ae0-4293-b135-8b3d7af8da1d"
+    },
+    "createdAt": "2026-06-18T06:41:06.586Z",
+    "updatedAt": "2026-06-18T06:41:06.586Z"
+  },
+  {
+    "_id": "74e4dcd1-a16e-4500-96ef-e547e91d79f6",
+    "recipient": "655f03b9-d3f9-41fe-9085-fd41b5be4a81",
+    "title": "Student renewal due",
+    "message": "Omar Siddiqui membership expires in 14 days. Please initiate renewal.",
+    "type": "renewal_due",
+    "channels": {
+      "inApp": {
+        "sent": true,
+        "sentAt": "2026-06-18T06:41:06.586Z"
+      }
+    },
+    "relatedEntity": {
+      "entityType": "student",
+      "entityId": "5afbcaee-c8f3-4b7f-8c45-0a0b25ad06ea"
+    },
+    "createdAt": "2026-06-18T06:41:06.587Z",
+    "updatedAt": "2026-06-18T06:41:06.587Z"
+  },
+  {
+    "_id": "1209ca5f-c7aa-46dd-ae1b-4b9c659e7c7f",
+    "recipient": "49ccd29f-4f95-4fcb-b091-8737429fcb32",
+    "title": "Payment received",
+    "message": "Your renewal payment of PKR 5,000 was received successfully.",
+    "type": "payment_success",
+    "isRead": true,
+    "readAt": "2026-06-17T06:41:06.586Z",
+    "channels": {
+      "inApp": {
+        "sent": true,
+        "sentAt": "2026-06-16T06:41:06.586Z"
+      }
+    },
+    "relatedEntity": {
+      "entityType": "payment",
+      "entityId": "16c15822-5dba-472e-957d-cb794c3a7063"
+    },
+    "createdAt": "2026-06-18T06:41:06.587Z",
+    "updatedAt": "2026-06-18T06:41:06.587Z"
+  },
+  {
+    "_id": "b811124e-57e0-4ba9-a62f-abfe2f1cc395",
+    "recipient": "b7b32592-cb4c-4e6d-8ce5-735b2587295d",
+    "title": "Inspection assigned",
+    "message": "Field inspection scheduled for Karachi School of Nursing.",
+    "type": "inspection_assigned",
+    "channels": {
+      "inApp": {
+        "sent": true,
+        "sentAt": "2026-06-18T06:41:06.586Z"
+      }
+    },
+    "relatedEntity": {
+      "entityType": "institution",
+      "entityId": "7694552c-1ae0-4293-b135-8b3d7af8da1d"
+    },
+    "createdAt": "2026-06-18T06:41:06.588Z",
+    "updatedAt": "2026-06-18T06:41:06.588Z"
+  },
+  {
+    "_id": "3e084eb2-32cb-47f5-8e78-069e7aa281f7",
+    "recipient": "0f013b8f-bae7-4ce9-88f0-6e3f1d697f75",
+    "title": "Pending faculty renewal payment",
+    "message": "Dr. Hassan Raza has a pending faculty renewal payment of PKR 7,500.",
+    "type": "general",
+    "channels": {
+      "inApp": {
+        "sent": true,
+        "sentAt": "2026-06-18T06:41:06.586Z"
+      }
+    },
+    "createdAt": "2026-06-18T06:41:06.588Z",
+    "updatedAt": "2026-06-18T06:41:06.589Z"
+  }
+]

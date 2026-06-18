@@ -1,0 +1,45 @@
+[
+  {
+    "_id": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "name": "Pakistan Institute of Nursing Sciences",
+    "institutionType": "college_of_nursing",
+    "email": "info@pnmc.com",
+    "phone": "+92-300-1234567",
+    "address": {
+      "street": "Sector H-8/1",
+      "city": "Islamabad",
+      "province": "ICT",
+      "country": "Pakistan"
+    },
+    "principalName": "Dr. Sarah Ahmed",
+    "establishedYear": 1995,
+    "status": "approved",
+    "registrationNumber": "INST-2026-00001",
+    "admin": "39895cd4-7216-48a6-8d38-59403dfe7701",
+    "approvedAt": "2026-06-18T06:41:03.710Z",
+    "expiresAt": "2027-06-18T06:41:03.710Z",
+    "renewalDueDate": "2027-05-14T06:41:03.710Z",
+    "createdAt": "2026-06-18T06:41:03.710Z",
+    "updatedAt": "2026-06-18T06:41:03.710Z"
+  },
+  {
+    "_id": "7694552c-1ae0-4293-b135-8b3d7af8da1d",
+    "name": "Karachi School of Nursing",
+    "institutionType": "school_of_nursing",
+    "email": "info@kson.edu.pk",
+    "phone": "+92-21-34567890",
+    "address": {
+      "street": "Clifton Block 5",
+      "city": "Karachi",
+      "province": "Sindh",
+      "country": "Pakistan"
+    },
+    "principalName": "Dr. Nadia Farooq",
+    "establishedYear": 2008,
+    "status": "field_inspection_pending",
+    "registrationNumber": "INST-2026-00002",
+    "approvedAt": null,
+    "createdAt": "2026-06-18T06:41:03.710Z",
+    "updatedAt": "2026-06-18T06:41:03.711Z"
+  }
+]

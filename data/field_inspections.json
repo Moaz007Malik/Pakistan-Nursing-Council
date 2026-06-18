@@ -1,0 +1,78 @@
+[
+  {
+    "_id": "d0c8da86-ece0-4f4f-93af-68f6be4a982f",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "application": "28e21771-8e59-45d1-9ae6-7bb255e969dd",
+    "fieldOfficer": "b7b32592-cb4c-4e6d-8ce5-735b2587295d",
+    "status": "submitted",
+    "scheduledDate": "2026-05-27T06:41:06.580Z",
+    "visitDate": "2026-05-29T06:41:06.580Z",
+    "geolocation": {
+      "latitude": 33.6844,
+      "longitude": 73.0479,
+      "accuracy": 12,
+      "capturedAt": "2026-05-29T06:41:06.580Z"
+    },
+    "sections": {
+      "infrastructure": {
+        "name": "Infrastructure",
+        "score": 88,
+        "maxScore": 100,
+        "compliant": true,
+        "remarks": "Well maintained campus"
+      },
+      "faculty": {
+        "name": "Faculty",
+        "score": 92,
+        "maxScore": 100,
+        "compliant": true
+      },
+      "labs": {
+        "name": "Labs",
+        "score": 85,
+        "maxScore": 100,
+        "compliant": true
+      },
+      "library": {
+        "name": "Library",
+        "score": 80,
+        "maxScore": 100,
+        "compliant": true
+      },
+      "hostel": {
+        "name": "Hostel",
+        "score": 78,
+        "maxScore": 100,
+        "compliant": true
+      },
+      "hospitalAffiliation": {
+        "name": "Hospital Affiliation",
+        "score": 90,
+        "maxScore": 100,
+        "compliant": true
+      },
+      "studentRecords": {
+        "name": "Student Records",
+        "score": 86,
+        "maxScore": 100,
+        "compliant": true
+      }
+    },
+    "overallScore": 86,
+    "recommendation": "recommended",
+    "summary": "Institution meets PNMC standards with minor hostel improvements suggested.",
+    "submittedAt": "2026-05-31T06:41:06.580Z",
+    "createdAt": "2026-06-18T06:41:06.580Z",
+    "updatedAt": "2026-06-18T06:41:06.580Z"
+  },
+  {
+    "_id": "157e1959-11e6-4f14-ace5-9bbcbb353a09",
+    "institution": "7694552c-1ae0-4293-b135-8b3d7af8da1d",
+    "application": "a12f1cb3-efde-4469-b6eb-4033eff729d0",
+    "fieldOfficer": "b7b32592-cb4c-4e6d-8ce5-735b2587295d",
+    "status": "assigned",
+    "scheduledDate": "2026-06-21T06:41:06.581Z",
+    "createdAt": "2026-06-18T06:41:06.581Z",
+    "updatedAt": "2026-06-18T06:41:06.581Z"
+  }
+]

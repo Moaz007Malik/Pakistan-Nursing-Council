@@ -1,0 +1,58 @@
+[
+  {
+    "_id": "16c15822-5dba-472e-957d-cb794c3a7063",
+    "invoiceNumber": "INV-2026-00001",
+    "paymentType": "student_renewal",
+    "gateway": "bypass",
+    "amount": 5000,
+    "currency": "PKR",
+    "status": "completed",
+    "payer": "49ccd29f-4f95-4fcb-b091-8737429fcb32",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "relatedEntity": {
+      "entityType": "student",
+      "entityId": "5afbcaee-c8f3-4b7f-8c45-0a0b25ad06ea"
+    },
+    "gatewayTransactionId": "BYPASS-SEED-001",
+    "receiptNumber": "RCP-2026-00001",
+    "paidAt": "2026-06-16T06:41:06.581Z",
+    "createdAt": "2026-06-18T06:41:06.581Z",
+    "updatedAt": "2026-06-18T06:41:06.581Z"
+  },
+  {
+    "_id": "d921a9f0-9ff8-4299-8415-0729b335f620",
+    "invoiceNumber": "INV-2026-00002",
+    "paymentType": "faculty_renewal",
+    "gateway": "bypass",
+    "amount": 7500,
+    "currency": "PKR",
+    "status": "pending",
+    "payer": "a153480c-6da7-4e7d-9278-a24ec82d06b6",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "relatedEntity": {
+      "entityType": "faculty",
+      "entityId": "59f1a060-313e-4b37-9c19-b0f8e56545f9"
+    },
+    "createdAt": "2026-06-18T06:41:06.582Z",
+    "updatedAt": "2026-06-18T06:41:06.582Z"
+  },
+  {
+    "_id": "447a1533-37f1-4fd9-b97c-05a37c61389d",
+    "invoiceNumber": "INV-2026-00003",
+    "paymentType": "institution_registration",
+    "gateway": "bypass",
+    "amount": 25000,
+    "currency": "PKR",
+    "status": "completed",
+    "payer": "4e163af8-cd3e-4673-8d3e-eb7bd0bfa329",
+    "institution": "7694552c-1ae0-4293-b135-8b3d7af8da1d",
+    "relatedEntity": {
+      "entityType": "institution",
+      "entityId": "7694552c-1ae0-4293-b135-8b3d7af8da1d"
+    },
+    "paidAt": "2026-06-08T06:41:06.583Z",
+    "receiptNumber": "RCP-2026-00002",
+    "createdAt": "2026-06-18T06:41:06.583Z",
+    "updatedAt": "2026-06-18T06:41:06.584Z"
+  }
+]

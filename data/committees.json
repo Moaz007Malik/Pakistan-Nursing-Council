@@ -1,0 +1,80 @@
+[
+  {
+    "_id": "1453f0b2-91f4-46f1-8811-994b44048e64",
+    "name": "Academic Committee",
+    "type": "academic",
+    "chairperson": "1b01612e-7e94-4dd5-95a5-f0163380d485",
+    "members": [
+      "1b01612e-7e94-4dd5-95a5-f0163380d485",
+      "f5a0a537-9412-4e87-8fc6-f64ed47808b0"
+    ],
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:04.411Z",
+    "updatedAt": "2026-06-18T06:41:04.411Z"
+  },
+  {
+    "_id": "c9522de3-d004-46f8-9fbc-f701d1d9efcf",
+    "name": "Selection Committee",
+    "type": "selection",
+    "chairperson": "1b01612e-7e94-4dd5-95a5-f0163380d485",
+    "members": [
+      "1b01612e-7e94-4dd5-95a5-f0163380d485",
+      "f5a0a537-9412-4e87-8fc6-f64ed47808b0"
+    ],
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:04.411Z",
+    "updatedAt": "2026-06-18T06:41:04.411Z"
+  },
+  {
+    "_id": "6107a4f3-1dd2-4410-b6a0-d54a8b9f9059",
+    "name": "Discipline Committee",
+    "type": "discipline",
+    "chairperson": "1b01612e-7e94-4dd5-95a5-f0163380d485",
+    "members": [
+      "1b01612e-7e94-4dd5-95a5-f0163380d485",
+      "f5a0a537-9412-4e87-8fc6-f64ed47808b0"
+    ],
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:04.412Z",
+    "updatedAt": "2026-06-18T06:41:04.412Z"
+  },
+  {
+    "_id": "98e31f19-e5d7-4003-8698-ccf49d355bbb",
+    "name": "Social Committee",
+    "type": "social",
+    "chairperson": "1b01612e-7e94-4dd5-95a5-f0163380d485",
+    "members": [
+      "1b01612e-7e94-4dd5-95a5-f0163380d485",
+      "f5a0a537-9412-4e87-8fc6-f64ed47808b0"
+    ],
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:04.412Z",
+    "updatedAt": "2026-06-18T06:41:04.413Z"
+  },
+  {
+    "_id": "e5cb1e36-c57a-43b4-a177-e45f04eff611",
+    "name": "Finance Committee",
+    "type": "finance",
+    "chairperson": "1b01612e-7e94-4dd5-95a5-f0163380d485",
+    "members": [
+      "1b01612e-7e94-4dd5-95a5-f0163380d485",
+      "f5a0a537-9412-4e87-8fc6-f64ed47808b0"
+    ],
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:04.413Z",
+    "updatedAt": "2026-06-18T06:41:04.414Z"
+  },
+  {
+    "_id": "31a699d8-d531-4cfb-bca4-248454f552b5",
+    "name": "Inspection Committee",
+    "type": "inspection",
+    "chairperson": "1b01612e-7e94-4dd5-95a5-f0163380d485",
+    "members": [
+      "1b01612e-7e94-4dd5-95a5-f0163380d485",
+      "f5a0a537-9412-4e87-8fc6-f64ed47808b0"
+    ],
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:04.414Z",
+    "updatedAt": "2026-06-18T06:41:04.415Z"
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "_id": "7c33d25f-4a4f-4990-8df5-b45c11ef6b7c",
+    "faculty": "59f1a060-313e-4b37-9c19-b0f8e56545f9",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "date": "2026-06-16T19:00:00.000Z",
+    "status": "present",
+    "source": "biometric",
+    "checkIn": "2026-06-17T02:30:00.000Z",
+    "checkOut": "2026-06-17T10:30:00.000Z",
+    "biometricDevice": "2cdc7146-9119-48f8-8832-f99545ea1546",
+    "createdAt": "2026-06-18T06:41:06.590Z",
+    "updatedAt": "2026-06-18T06:41:06.591Z"
+  },
+  {
+    "_id": "f5645ebe-c20d-4320-aab0-6388be1f146e",
+    "faculty": "59f1a060-313e-4b37-9c19-b0f8e56545f9",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "date": "2026-06-15T19:00:00.000Z",
+    "status": "present",
+    "source": "biometric",
+    "checkIn": "2026-06-16T02:30:00.000Z",
+    "checkOut": "2026-06-16T10:30:00.000Z",
+    "biometricDevice": "2cdc7146-9119-48f8-8832-f99545ea1546",
+    "createdAt": "2026-06-18T06:41:06.591Z",
+    "updatedAt": "2026-06-18T06:41:06.592Z"
+  },
+  {
+    "_id": "b0784e0d-4e1d-41f1-acfd-0947c52b4371",
+    "faculty": "59f1a060-313e-4b37-9c19-b0f8e56545f9",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "date": "2026-06-14T19:00:00.000Z",
+    "status": "present",
+    "source": "biometric",
+    "checkIn": "2026-06-15T02:30:00.000Z",
+    "checkOut": "2026-06-15T10:30:00.000Z",
+    "biometricDevice": "2cdc7146-9119-48f8-8832-f99545ea1546",
+    "createdAt": "2026-06-18T06:41:06.592Z",
+    "updatedAt": "2026-06-18T06:41:06.592Z"
+  },
+  {
+    "_id": "836509e9-16b0-443e-9a4c-4a2ff81c3783",
+    "faculty": "59f1a060-313e-4b37-9c19-b0f8e56545f9",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "date": "2026-06-13T19:00:00.000Z",
+    "status": "present",
+    "source": "biometric",
+    "checkIn": "2026-06-14T02:30:00.000Z",
+    "checkOut": "2026-06-14T10:30:00.000Z",
+    "biometricDevice": "2cdc7146-9119-48f8-8832-f99545ea1546",
+    "createdAt": "2026-06-18T06:41:06.593Z",
+    "updatedAt": "2026-06-18T06:41:06.593Z"
+  },
+  {
+    "_id": "8c5b530c-87b3-4f79-a053-c8322888905e",
+    "faculty": "59f1a060-313e-4b37-9c19-b0f8e56545f9",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "date": "2026-06-12T19:00:00.000Z",
+    "status": "leave",
+    "source": "biometric",
+    "biometricDevice": "2cdc7146-9119-48f8-8832-f99545ea1546",
+    "createdAt": "2026-06-18T06:41:06.594Z",
+    "updatedAt": "2026-06-18T06:41:06.595Z"
+  }
+]

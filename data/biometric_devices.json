@@ -1,0 +1,28 @@
+[
+  {
+    "_id": "2cdc7146-9119-48f8-8832-f99545ea1546",
+    "name": "Main Entrance ZKTeco",
+    "deviceId": "ZK-001-PINS",
+    "vendor": "zkteco",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "ipAddress": "192.168.1.100",
+    "port": 4370,
+    "location": "Main Entrance",
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:06.575Z",
+    "updatedAt": "2026-06-18T06:41:06.575Z"
+  },
+  {
+    "_id": "7878392d-bbdc-4b5c-824d-f54db2a82bae",
+    "name": "Lab Wing eSSL",
+    "deviceId": "ESL-002-PINS",
+    "vendor": "essl",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "ipAddress": "192.168.1.101",
+    "port": 4370,
+    "location": "Skills Lab",
+    "isActive": true,
+    "createdAt": "2026-06-18T06:41:06.577Z",
+    "updatedAt": "2026-06-18T06:41:06.577Z"
+  }
+]

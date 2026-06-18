@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "64c8765c-5313-4a44-9a82-c2db6b2e22bb",
+    "entityType": "student",
+    "entityId": "5afbcaee-c8f3-4b7f-8c45-0a0b25ad06ea",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "requestedBy": "49ccd29f-4f95-4fcb-b091-8737429fcb32",
+    "renewalYear": 2026,
+    "status": "payment_completed",
+    "payment": "16c15822-5dba-472e-957d-cb794c3a7063",
+    "previousExpiryDate": "2026-07-02T06:41:02.267Z",
+    "newExpiryDate": "2027-06-18T06:41:06.582Z",
+    "createdAt": "2026-06-18T06:41:06.582Z",
+    "updatedAt": "2026-06-18T06:41:06.582Z"
+  }
+]

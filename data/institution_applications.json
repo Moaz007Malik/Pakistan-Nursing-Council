@@ -1,0 +1,57 @@
+[
+  {
+    "_id": "28e21771-8e59-45d1-9ae6-7bb255e969dd",
+    "institution": "692b0ca3-0258-4fca-8efe-12de5e163357",
+    "submittedBy": "655f03b9-d3f9-41fe-9085-fd41b5be4a81",
+    "status": "committee_review",
+    "workflow": [
+      {
+        "step": "institution_submission",
+        "status": "completed",
+        "completedAt": "2026-05-19T06:41:04.178Z"
+      },
+      {
+        "step": "field_inspection",
+        "status": "completed",
+        "completedAt": "2026-05-29T06:41:04.178Z"
+      },
+      {
+        "step": "committee_review",
+        "status": "in_progress"
+      },
+      {
+        "step": "council_review",
+        "status": "pending"
+      }
+    ],
+    "createdAt": "2026-06-18T06:41:04.178Z",
+    "updatedAt": "2026-06-18T06:41:04.178Z"
+  },
+  {
+    "_id": "a12f1cb3-efde-4469-b6eb-4033eff729d0",
+    "institution": "7694552c-1ae0-4293-b135-8b3d7af8da1d",
+    "submittedBy": "4e163af8-cd3e-4673-8d3e-eb7bd0bfa329",
+    "status": "field_inspection_pending",
+    "workflow": [
+      {
+        "step": "institution_submission",
+        "status": "completed",
+        "completedAt": "2026-06-08T06:41:04.180Z"
+      },
+      {
+        "step": "field_inspection",
+        "status": "in_progress"
+      },
+      {
+        "step": "committee_review",
+        "status": "pending"
+      },
+      {
+        "step": "council_review",
+        "status": "pending"
+      }
+    ],
+    "createdAt": "2026-06-18T06:41:04.180Z",
+    "updatedAt": "2026-06-18T06:41:04.180Z"
+  }
+]
