@@ -29,7 +29,6 @@ const readStoredAuth = () => {
 };
 
 const stored = readStoredAuth();
-
 const authSlice = createSlice({
   name: 'auth',
   initialState: {

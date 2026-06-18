@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "node server.js",
     "dev:clean": "npm run clean && npm run dev",
-    "clean": "rm -rf .next",
+    "clean": "node scripts/clean-next.js",
     "build": "next build",
+    "build:clean": "npm run clean && next build",
     "start": "NODE_ENV=production node server.js",
     "seed": "node src/server/seeds/index.js",
     "lint": "eslint src/"
