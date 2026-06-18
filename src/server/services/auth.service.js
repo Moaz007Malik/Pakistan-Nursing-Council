@@ -37,7 +37,7 @@ class AuthService {
 
   async login(email, password, ip) {
     const user = await User.findOne({ email }).select('+password');
-    if (!user || !user.isActive) {
+    if (!user || user.isActive === false) {
       throw new ApiError(401, 'Invalid credentials');
     }
 
@@ -68,7 +68,7 @@ class AuthService {
   async refreshToken(token) {
     const decoded = jwt.verify(token, config.jwt.refreshSecret);
     const user = await User.findById(decoded.id);
-    if (!user?.isActive) throw new ApiError(401, 'Invalid refresh token');
+    if (!user || user.isActive === false) throw new ApiError(401, 'Invalid refresh token');
 
     const stored = user.refreshTokens.find((rt) => rt.token === token);
     if (!stored || stored.expiresAt < new Date()) {

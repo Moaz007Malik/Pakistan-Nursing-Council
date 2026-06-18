@@ -14,7 +14,7 @@ const authenticate = async (req, res, next) => {
     const decoded = jwt.verify(token, config.jwt.secret);
 
     const user = await User.findById(decoded.id).select('-password');
-    if (!user || !user.isActive) {
+    if (!user || user.isActive === false) {
       throw new ApiError(401, 'User not found or inactive');
     }
 
@@ -39,7 +39,7 @@ const optionalAuth = async (req, res, next) => {
       const token = authHeader.split(' ')[1];
       const decoded = jwt.verify(token, config.jwt.secret);
       const user = await User.findById(decoded.id).select('-password');
-      if (user?.isActive) req.user = user;
+      if (user && user.isActive !== false) req.user = user;
     }
     next();
   } catch {

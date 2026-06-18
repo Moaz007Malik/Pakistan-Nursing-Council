@@ -60,26 +60,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.get('/health', async (req, res) => {
-  const mongoose = require('mongoose');
-  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
-
-  if (mongoose.connection.readyState !== 1) {
-    try {
-      await connectDB();
-    } catch (error) {
-      return res.status(503).json({
-        status: 'error',
-        db: error.message,
-        timestamp: new Date().toISOString(),
-      });
-    }
+  try {
+    await connectDB();
+    res.json({
+      status: 'ok',
+      db: connectDB.getConnectionState?.() || 'connected',
+      storage: 'json',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'error',
+      db: error.message,
+      timestamp: new Date().toISOString(),
+    });
   }
-
-  res.json({
-    status: 'ok',
-    db: states[mongoose.connection.readyState] || 'unknown',
-    timestamp: new Date().toISOString(),
-  });
 });
 
 app.get('/api', (req, res) => {

@@ -5,7 +5,7 @@ Enterprise-grade Nursing & Midwifery Council Management System — **single Next
 | Layer | Technologies |
 |-------|-------------|
 | Frontend | Next.js 15, React, Redux Toolkit, Material UI, React Query, React Router (in-app) |
-| Backend | Express API (same repo), MongoDB, Mongoose, JWT, RBAC |
+| Backend | Express API (same repo), **JSON file database**, JWT, RBAC |
 | Storage | Local disk (dev) or Cloudinary (production) |
 | Deployment | Vercel (recommended) or self-hosted Node server |
 
@@ -13,14 +13,13 @@ Enterprise-grade Nursing & Midwifery Council Management System — **single Next
 
 ### Prerequisites
 - Node.js 20+
-- MongoDB ([MongoDB Atlas](https://www.mongodb.com/atlas) or local)
 
 ### Setup
 
 ```bash
 cp .env.example .env
 npm install
-npm run seed
+npm run seed    # creates ./data/*.json with demo records
 ```
 
 ### Run
@@ -41,7 +40,7 @@ All configuration lives in a single root `.env` file.
 2. Set environment variables from `.env.example` in Vercel → Settings → Environment Variables.
 3. API routes are served via `api/index.js` (serverless Express); the UI is built with Next.js.
 
-Health check: `GET /health` should return `"db": "connected"`.
+Health check: `GET /health` should return `"storage": "json"` and `"db": "connected"`.
 
 ### Self-hosted
 
@@ -70,20 +69,20 @@ NODE_ENV=production npm start
 PNC/
 ├── .env                    # All secrets & config (not committed)
 ├── api/                    # Vercel serverless Express entry
+├── data/                   # JSON database (one file per collection)
+│   ├── users.json
+│   ├── students.json
+│   └── ...
 ├── server.js               # Local dev / self-hosted (Next.js + Express)
 ├── src/
 │   ├── app/                # Next.js App Router
-│   ├── server/             # Express API (controllers, models, routes, …)
 │   ├── components/         # React UI components
+│   ├── server/             # Express API (controllers, models, routes, …)
 │   ├── views/              # Page components (routed via React Router)
 │   ├── features/           # Redux slices
 │   ├── services/           # API client
 │   └── store/              # Redux store
-├── frontend/               # Legacy Vite app (deprecated)
-└── backend/                # Legacy Express app (deprecated)
 ```
-
-The `frontend/` and `backend/` folders are kept for reference during migration and can be removed once you confirm the unified app works.
 
 ## License
 

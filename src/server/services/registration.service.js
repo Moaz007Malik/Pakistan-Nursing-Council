@@ -1,9 +1,11 @@
+const Student = require('../models/Student');
+const Faculty = require('../models/Faculty');
 const { generateRegistrationNumber, generateQRCode } = require('../utils/generators');
 
 const assignStudentRegistration = async (student) => {
   if (student.registrationNumber) return student;
 
-  const count = await student.constructor.countDocuments({
+  const count = await Student.countDocuments({
     registrationNumber: { $exists: true, $ne: null },
   });
 
@@ -21,7 +23,7 @@ const assignStudentRegistration = async (student) => {
 const assignFacultyRegistration = async (faculty) => {
   if (faculty.registrationNumber) return faculty;
 
-  const count = await faculty.constructor.countDocuments({
+  const count = await Faculty.countDocuments({
     registrationNumber: { $exists: true, $ne: null },
   });
 

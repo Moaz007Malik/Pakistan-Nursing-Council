@@ -1,5 +1,10 @@
 require('../../src/server/config/loadEnv');
 
+// Serverless runtimes use /tmp for writable JSON storage
+if (!process.env.DATA_DIR && (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME)) {
+  process.env.DATA_DIR = '/tmp/pnmc-data';
+}
+
 const serverless = require('serverless-http');
 
 let handlerPromise;

@@ -1,5 +1,4 @@
 require('../config/loadEnv');
-const mongoose = require('mongoose');
 const connectDB = require('../config/database');
 const {
   User,
@@ -158,7 +157,7 @@ const createStudentWithUser = async (institutionId, entry, approvedBy) => {
     institution: institutionId,
   });
 
-  const student = new Student({
+  const studentData = {
     user: user._id,
     institution: institutionId,
     personalInfo: entry.personalInfo,
@@ -171,13 +170,13 @@ const createStudentWithUser = async (institutionId, entry, approvedBy) => {
     workflow: entry.workflow || [],
     expiresAt: entry.expiresAt,
     renewalDueDate: entry.renewalDueDate,
-  });
+  };
 
-  await assignStudentRegistration(student);
-  if (student.status === 'active') {
-    activateStudentMembership(student, approvedBy);
+  await assignStudentRegistration(studentData);
+  if (studentData.status === 'active') {
+    activateStudentMembership(studentData, approvedBy);
   }
-  await student.save();
+  const student = await Student.create(studentData);
   return { user, student };
 };
 
@@ -191,7 +190,7 @@ const createFacultyWithUser = async (institutionId, entry, approvedBy) => {
     institution: institutionId,
   });
 
-  const faculty = new Faculty({
+  const facultyData = {
     user: user._id,
     institution: institutionId,
     personalInfo: entry.personalInfo,
@@ -200,13 +199,13 @@ const createFacultyWithUser = async (institutionId, entry, approvedBy) => {
     workflow: entry.workflow || [],
     expiresAt: entry.expiresAt,
     renewalDueDate: entry.renewalDueDate,
-  });
+  };
 
-  await assignFacultyRegistration(faculty);
-  if (faculty.status === 'active') {
-    activateFacultyMembership(faculty, approvedBy);
+  await assignFacultyRegistration(facultyData);
+  if (facultyData.status === 'active') {
+    activateFacultyMembership(facultyData, approvedBy);
   }
-  await faculty.save();
+  const faculty = await Faculty.create(facultyData);
   return { user, faculty };
 };
 
@@ -651,7 +650,7 @@ const seed = async () => {
     };
 
     logger.info('Seed completed successfully!');
-    logger.info(`Database: ${mongoose.connection.name} @ ${mongoose.connection.host}`);
+    logger.info(`JSON database: ${connectDB.DATA_DIR}`);
     logger.info(`Counts: ${JSON.stringify(counts)}`);
     logger.info('--- Default Credentials ---');
     seedUsers.forEach((u) => logger.info(`${u.role}: ${u.email} / ${u.password}`));
@@ -661,7 +660,6 @@ const seed = async () => {
     logger.info('student (renewal due): omar.siddiqui@pnmc.com / Student@123');
     logger.info('faculty: faculty@pnmc.com / Faculty@123');
 
-    await mongoose.disconnect();
     process.exit(0);
   } catch (error) {
     logger.error('Seed failed:', error);

@@ -19,7 +19,3 @@ jobs:
       - run: npm ci
       - run: npm run lint --if-present
       - run: npm run build
-        env:
-          MONGODB_URI: mongodb://127.0.0.1:27017/pnmc-ci
-          JWT_SECRET: ci-jwt-secret
-          JWT_REFRESH_SECRET: ci-refresh-secret
