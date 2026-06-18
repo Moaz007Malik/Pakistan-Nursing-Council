@@ -5,6 +5,8 @@
   "description": "PNMC Management System — Next.js full-stack app",
   "scripts": {
     "dev": "node server.js",
+    "dev:clean": "npm run clean && npm run dev",
+    "clean": "rm -rf .next",
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
     "seed": "node src/server/seeds/index.js",
@@ -54,6 +56,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.11",
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.3.3",
     "eslint-plugin-react": "^7.34.3",
